@@ -26,7 +26,8 @@ class ProductController extends RestController
 
            'apiauth' => [
                'class' => Apiauth::className(),
-               'exclude' => ['view','create','index','delete','products','categories','list'],
+               'exclude' => ['view','create','index','delete','products','categories','customer_list','view_customer',
+               'list','category_adding','update','delete','update_product','delete_product','delete_customer'],
                'callback'=>[]
            ],
             'access' => [
@@ -56,10 +57,10 @@ class ProductController extends RestController
                 'class' => Verbcheck::className(),
                 'actions' => [
                     'index' => ['GET', 'POST'],
-                    'create' => ['POST'],
+                    'create','category_adding' => ['POST'],
                     'update' => ['PUT'],
                     'view' => ['GET'],
-                    'delete' => ['DELETE']
+                    'delete','delete_product','delete_customer' => ['DELETE']
                 ],
             ],
 
@@ -81,30 +82,35 @@ class ProductController extends RestController
         $category=Category::find(['category_id'])->where(['category_name' =>$this->request['category']])->one();
        
             $cat_id= $category['category_id'];
+          
            
-    //    $image=UploadedFile::getInstanceByName($this->request['image']);
-    
+       $image=UploadedFile::getInstanceByName('image');
+      
+       $imgName='img_'. $cat_id .'.'.$image->getExtension();
+          
+       $image->saveAs(Yii::getAlias('@uploadsImgPath').'/'.$imgName);
+     
         $model->category =$cat_id;
         $model->name=$this->request['name'];
-        $model->image=$this->request['image'];
+        $model->image=$imgName;
         $model->description=$this->request['description'];
         $model->price=$this->request['price'];
         $model->count=$this->request['count'];
 
-
         if ($model->save()) {
-            // $image->saveAs('uploads/'.$model->image);
+          
             Yii::$app->api->sendSuccessResponse($model->attributes);
         } else {
             Yii::$app->api->sendFailedResponse($model->errors);
         }
-
     }
+
+    
 
     public function actionUpdate($id)
     {
 
-        $model = $this->findModel($id);
+        $model = $this->findModel1($id);
         $model->attributes = $this->request;
 
         if ($model->save()) {
@@ -125,12 +131,48 @@ class ProductController extends RestController
     public function actionDelete($id)
     {
 
-        $model = $this->findModel($id);
+        $model = $this->findModel1($id);
         $model->delete();
         Yii::$app->api->sendSuccessResponse($model->attributes);
     }
+    protected function findmodel1($id)
+    {
+        if (($model = Category::findOne($id)) !== null) {
+            return $model;
+        } else {
+            Yii::$app->api->sendFailedResponse("Invalid Record requested");
+        }
+    }
+    public function actionDelete_product($id)
+    {
 
-    protected function findModel($id)
+        $model = $this->findModel2($id);
+        $model->delete();
+        Yii::$app->api->sendSuccessResponse($model->attributes);
+    }
+    protected function findmodel2($id)
+    {
+        if (($model = Product::findOne($id)) !== null) {
+            return $model;
+        } else {
+            Yii::$app->api->sendFailedResponse("Invalid Record requested");
+        }
+    }
+    public function actionUpdate_product($id)
+    {
+
+        $model = $this->findModel2($id);
+        $model->attributes = $this->request;
+
+        if ($model->save()) {
+            Yii::$app->api->sendSuccessResponse($model->attributes);
+        } else {
+            Yii::$app->api->sendFailedResponse($model->errors);
+        }
+
+    }
+  
+      protected function findModel($id)
     {
         if (($model = Product::findOne($id)) !== null) {
             $model1=Product::find()->where(['id'=>$id])->all();
@@ -198,10 +240,13 @@ class ProductController extends RestController
         $model->attributes = $this->request;
 
     }
-    public function actionList($id)
+    public function actionList($email)
     {
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        $category=Orders::find()->where(['customer_id' =>$id])->all();
+      
+        $cus_id=Customer::find()->where(['email' =>$email])->one();
+     
+        $category=Orders::find()->where(['customer_id' =>$cus_id])->all();
         $query=array();
         foreach($category as $product){
             $model = Product::findOne($product->product_id);
@@ -216,5 +261,45 @@ class ProductController extends RestController
           
          return $query;
     }
+    public function actionCategory_adding()
+    {
+        $model = new Category;
+        $model->attributes = $this->request;
+
+        if ($model->save()) {
+            Yii::$app->api->sendSuccessResponse($model->attributes);
+        } else {
+            Yii::$app->api->sendFailedResponse($model->errors);
+        }
+
+    }
+    public function actionList_customer()
+    {
+        $params = $this->request['search'];
+        $response = Customer::search($params);
+        Yii::$app->api->sendSuccessResponse($response['data'], $response['info']);
+    }
+    public function actionDelete_customer($id)
+    {
+
+        $model = $this->findModel3($id);
+        $model->delete();
+        Yii::$app->api->sendSuccessResponse($model->attributes);
+    }
+    protected function findmodel3($id)
+    {
+        if (($model = Customer::findOne($id)) !== null) {
+            return $model;
+        } else {
+            Yii::$app->api->sendFailedResponse("Invalid Record requested");
+        }
+    }
+    public function actionView_customer($id)
+    {
+
+        $model = $this->findModel3($id);
+        Yii::$app->api->sendSuccessResponse($model->attributes);
+    }
+   
 
 }

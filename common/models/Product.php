@@ -73,7 +73,9 @@ class Product extends \yii\db\ActiveRecord
         $offset = ($page - 1) * $limit;
 
            \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-            $query = Product::find()->all();
+
+        
+            $query = Product::find()->limit($limit)->all();
             $i=0;
            
             // return $users;
