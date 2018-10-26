@@ -82,7 +82,7 @@ class Product extends \yii\db\ActiveRecord
            
             foreach($query as $row)
             {
-                 $category=Category::find(['category_name'])->where(['category_id' =>$row->category])->all();
+                 $category=Category::find(['category_name'])->where(['id' =>$row->category])->all();
                  foreach($category as $ca)
                  {
                     $name=$ca->category_name;

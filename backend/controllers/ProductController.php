@@ -26,8 +26,8 @@ class ProductController extends RestController
 
            'apiauth' => [
                'class' => Apiauth::className(),
-               'exclude' => ['view','create','index','delete','products','categories','customer_list','view_customer',
-               'list','category_adding','update','delete','update_product','delete_product','delete_customer'],
+               'exclude' => ['view','create','index','delete','products','categories','list_customer','view_customer',
+               'list','category_adding','update','delete','update_product','delete_product','delete_customer','list_category'],
                'callback'=>[]
            ],
             'access' => [
@@ -60,7 +60,7 @@ class ProductController extends RestController
                     'create','category_adding' => ['POST'],
                     'update' => ['PUT'],
                     'view' => ['GET'],
-                    'delete','delete_product','delete_customer' => ['DELETE']
+                    'delete' => ['DELETE']
                 ],
             ],
 
@@ -79,9 +79,9 @@ class ProductController extends RestController
         
         $model = new Product;
         
-        $category=Category::find(['category_id'])->where(['category_name' =>$this->request['category']])->one();
+        $category=Category::find(['id'])->where(['category_name' =>$this->request['category']])->one();
        
-            $cat_id= $category['category_id'];
+            $cat_id= $category['id'];
           
            
        $image=UploadedFile::getInstanceByName('image');
@@ -178,7 +178,7 @@ class ProductController extends RestController
             $model1=Product::find()->where(['id'=>$id])->all();
             foreach($model1 as $row)
             {
-                $category=Category::find()->where(['category_id' =>$row['category']])->all();
+                $category=Category::find()->where(['id' =>$row['category']])->all();
                  foreach($category as $ca)
                  {
                     $name=$ca['category_name'];
@@ -199,14 +199,14 @@ class ProductController extends RestController
          $model=Category::find()->where(['category_name'=>$category])->all();
           foreach($model as $row)
          {
-         $name=$row['category_id'];
+         $name=$row['id'];
        
          }
          $model=Product::find()->where(['category'=>$name])->all();
          $i=0;
          foreach($model as $row)
          {
-             $category=Category::find()->where(['category_id' =>$row['category']])->all();
+             $category=Category::find()->where(['id' =>$row['category']])->all();
               foreach($category as $ca)
               {
                  $name=$ca['category_name'];
@@ -250,7 +250,7 @@ class ProductController extends RestController
         $query=array();
         foreach($category as $product){
             $model = Product::findOne($product->product_id);
-            $category=Category::find(['category_name'])->where(['category_id' =>$model['category']])->one();
+            $category=Category::find(['category_name'])->where(['id' =>$model['category']])->one();
             
             $name=$category['category_name'];
             $model['category']=$name;
@@ -300,6 +300,11 @@ class ProductController extends RestController
         $model = $this->findModel3($id);
         Yii::$app->api->sendSuccessResponse($model->attributes);
     }
-   
+    public function actionList_category()
+    {
+        $params = $this->request['search'];
+        $response = Category::search($params);
+        Yii::$app->api->sendSuccessResponse($response['data'], $response['info']);
+    }
 
 }
