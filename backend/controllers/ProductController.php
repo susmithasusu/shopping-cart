@@ -27,7 +27,7 @@ class ProductController extends RestController
            'apiauth' => [
                'class' => Apiauth::className(),
                'exclude' => ['view','create','index','delete','products','categories','list_customer','view_customer',
-               'list','category_adding','update','delete','update_product','delete_product','delete_customer','list_category'],
+               'list','category_adding','customer_adding','update','delete','update_product','delete_product','delete_customer','list_category'],
                'callback'=>[]
            ],
             'access' => [
@@ -305,6 +305,18 @@ class ProductController extends RestController
         $params = $this->request['search'];
         $response = Category::search($params);
         Yii::$app->api->sendSuccessResponse($response['data'], $response['info']);
+    }
+    public function actionCustomer_adding()
+    {
+        $model = new Customer;
+        $model->attributes = $this->request;
+
+        if ($model->save()) {
+            Yii::$app->api->sendSuccessResponse($model->attributes);
+        } else {
+            Yii::$app->api->sendFailedResponse($model->errors);
+        }
+
     }
 
 }
