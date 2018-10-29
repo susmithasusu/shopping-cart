@@ -79,9 +79,7 @@ class Product extends \yii\db\ActiveRecord
             $query = Product::find()->limit($limit)->all();
             $i=0;?>
            
-            // return $users;
-            <?php echo Html::img('@web/uploads/img_iphone.jpg', ['alt'=>'some', 'class'=>'thing']);?>
-            exit();
+          
             <?php
            
             foreach($query as $row)
