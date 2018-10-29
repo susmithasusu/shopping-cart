@@ -62,12 +62,8 @@ class Category extends \yii\db\ActiveRecord
             $params=$search;
         }
 
-
-
         $limit = isset($limit) ? $limit : 10;
         $page = isset($page) ? $page : 1;
-
-
         $offset = ($page - 1) * $limit;
 
         $query =Category::find()

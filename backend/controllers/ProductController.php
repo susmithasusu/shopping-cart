@@ -11,6 +11,7 @@ use common\models\Category;
 use yii\web\UploadedFile;
 use common\models\Orders;
 use common\models\Customer;
+use common\models\Address;
 
 use Yii;
 
@@ -78,24 +79,28 @@ class ProductController extends RestController
     {
         
         $model = new Product;
+        $params = Yii::$app->request->post();
+        if($params){
         
-        $category=Category::find(['id'])->where(['category_name' =>$this->request['category']])->one();
+        $category=Category::find(['id'])->where(['category_name' =>$params['category']])->one();
        
             $cat_id= $category['id'];
           
            
        $image=UploadedFile::getInstanceByName('image');
+    //    print_r($image);
+    //    exit();
       
-       $imgName='img_'. $cat_id .'.'.$image->getExtension();
+       $imgName='img_'.$params['name'] .'.'.$image->getExtension();
           
        $image->saveAs(Yii::getAlias('@uploadsImgPath').'/'.$imgName);
      
         $model->category =$cat_id;
-        $model->name=$this->request['name'];
+        $model->name=$params['name'];
         $model->image=$imgName;
-        $model->description=$this->request['description'];
-        $model->price=$this->request['price'];
-        $model->count=$this->request['count'];
+        $model->description=$params['description'];
+        $model->price=$params['price'];
+        $model->count=$params['count'];
 
         if ($model->save()) {
           
@@ -103,6 +108,7 @@ class ProductController extends RestController
         } else {
             Yii::$app->api->sendFailedResponse($model->errors);
         }
+    }
     }
 
     
@@ -243,8 +249,13 @@ class ProductController extends RestController
     public function actionList($email)
     {
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $array = array();
       
         $cus_id=Customer::find()->where(['email' =>$email])->one();
+        $query1 =Customer::find()
+        ->select(['id', 'address','name', 'email', 'phone'])
+        ->where(['email'=>$email])
+        ->asArray(true);
      
         $category=Orders::find()->where(['customer_id' =>$cus_id])->all();
         $query=array();
@@ -258,8 +269,10 @@ class ProductController extends RestController
             $query++;
          
         }
+        $merge= array_merge($query1->all(),$query) ;
+      
           
-         return $query;
+         return   $merge;
     }
     public function actionCategory_adding()
     {
@@ -309,13 +322,45 @@ class ProductController extends RestController
     public function actionCustomer_adding()
     {
         $model = new Customer;
-        $model->attributes = $this->request;
-
+        $model1=new Address;
+       
+       $params = Yii::$app->request->post();
+        $cn=count($params);
+     
+        if($params){
+            // $model->id = $params['DeliveryAddress']['id'];
+            $model->address = $params['DeliveryAddress']['address'];
+            $model->email= $params['DeliveryAddress']['email'];
+            $model->name = $params['DeliveryAddress']['name'];
+            $model->phone = $params['DeliveryAddress']['phone'];
+            $model->save();
+         
         if ($model->save()) {
-            Yii::$app->api->sendSuccessResponse($model->attributes);
+            // print_r($model->id);
+            // exit();
+            for($i=0;$i<=$cn-2;$i++)
+            {
+                $model2=new Orders;
+               
+
+                $cus_id=Product::find()->where(['name' =>$params['productsCart'][$i]['name']])->one(); 
+               
+                $model2->customer_id=$model->id;
+                $model2->product_id=$cus_id->id;
+                $model2->count=$params['productsCart'][$i]['count'];
+            $model2->save();
+           
+           
+           }$response="success your order has been successfully placed delivery expected before 6th october";
+           return $response;
+            Yii::$app->api->sendSuccessResponse($response); 
+        
+     
+      
         } else {
             Yii::$app->api->sendFailedResponse($model->errors);
         }
+    }
 
     }
 

@@ -5,6 +5,7 @@ namespace common\models;
 use Yii;
 use yii\db\Query;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Html;
 
 /**
  * This is the model class for table "display".
@@ -76,9 +77,12 @@ class Product extends \yii\db\ActiveRecord
 
         
             $query = Product::find()->limit($limit)->all();
-            $i=0;
+            $i=0;?>
            
             // return $users;
+            <?php echo Html::img('@web/uploads/img_iphone.jpg', ['alt'=>'some', 'class'=>'thing']);?>
+            exit();
+            <?php
            
             foreach($query as $row)
             {
