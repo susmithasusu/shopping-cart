@@ -11,7 +11,7 @@ use common\models\Category;
 use yii\web\UploadedFile;
 use common\models\Orders;
 use common\models\Customer;
-use common\models\Address;
+use common\models\Total;
 
 use Yii;
 
@@ -242,6 +242,7 @@ class ProductController extends RestController
     {
         $model = new Customer();
         $model1=new Order();
+        
      
         $model->attributes = $this->request;
 
@@ -269,10 +270,15 @@ class ProductController extends RestController
             $query++;
          
         }
+        $last_for_user = Total::find()->where('customer_id', $cus_id)->orderBy(['id' => SORT_DESC])->one();
+        // print_r($last_for_user->total);
+        // exit();
+
         return[
          
         'DeliveryAddress' =>$query1->all(),
-        'productsCart'=>$query
+        'productsCart'=>$query,
+        'totelAmount'=>$last_for_user->total
         ];
         
         Yii::$app->api->sendSuccessResponse($response['DeliveryAddress'],$response['productsCart']);
@@ -328,7 +334,7 @@ class ProductController extends RestController
     public function actionCustomer_adding()
     {
         $model = new Customer;
-        $model1=new Address;
+        $model1=new Total;
        
        $params = Yii::$app->request->post();
         $cn=count($params);
@@ -340,10 +346,14 @@ class ProductController extends RestController
             $model->name = $params['DeliveryAddress']['name'];
             $model->phone = $params['DeliveryAddress']['phone'];
             $model->save();
+           
          
         if ($model->save()) {
-            // print_r($model->id);
+            // print_r($params['totelAmount']);
             // exit();
+            $model1->customer_id=$model->id;
+            $model1->total=$params['totelAmount'];
+            $model1->save();
             for($i=0;$i<=$cn-2;$i++)
             {
                 $model2=new Orders;
