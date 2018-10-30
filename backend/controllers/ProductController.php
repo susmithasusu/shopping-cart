@@ -28,7 +28,7 @@ class ProductController extends RestController
            'apiauth' => [
                'class' => Apiauth::className(),
                'exclude' => ['view','create','index','delete','products','categories','list_customer','view_customer',
-               'list','category_adding','customer_adding','update','delete','update_product','delete_product','delete_customer','list_category'],
+               'list','category_adding','customer_adding','update','delete','update_product','delete_product','delete_order','delete_customer','list_category'],
                'callback'=>[]
            ],
             'access' => [
@@ -247,8 +247,8 @@ class ProductController extends RestController
 
     }
     public function actionList($email)
-    {
-        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+     {
+    //     \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         $array = array();
       
         $cus_id=Customer::find()->where(['email' =>$email])->one();
@@ -269,10 +269,16 @@ class ProductController extends RestController
             $query++;
          
         }
-        $merge= array_merge($query1->all(),$query) ;
+        return[
+         
+        'DeliveryAddress' =>$query1->all(),
+        'productsCart'=>$query
+        ];
+        
+        Yii::$app->api->sendSuccessResponse($response['DeliveryAddress'],$response['productsCart']);
       
-          
-         return   $merge;
+      
+
     }
     public function actionCategory_adding()
     {
@@ -351,9 +357,12 @@ class ProductController extends RestController
             $model2->save();
            
            
-           }$response="success your order has been successfully placed delivery expected before 6th october";
-           return $response;
-            Yii::$app->api->sendSuccessResponse($response); 
+           }
+           return [
+            'data' =>'successfully placed',
+            
+        ];
+            Yii::$app->api->sendSuccessResponse($response['data']); 
         
      
       
@@ -362,6 +371,22 @@ class ProductController extends RestController
         }
     }
 
+    }
+    public function actionDelete_order($id)
+    {
+
+  
+        $model = $this->findModel_order($id);
+        $model->delete();
+        Yii::$app->api->sendSuccessResponse($model->attributes);
+    }
+    protected function findmodel_order($id)
+    {
+        if (($model = Orders::findOne($id)) !== null) {
+            return $model;
+        } else {
+            Yii::$app->api->sendFailedResponse("Invalid Record requested");
+        }
     }
 
 }

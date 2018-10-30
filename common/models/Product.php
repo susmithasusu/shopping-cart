@@ -110,6 +110,7 @@ class Product extends \yii\db\ActiveRecord
             'info' => $additional_info
         ];
     }
+    
 
   
 }
