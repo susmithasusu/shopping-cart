@@ -201,14 +201,25 @@ class ProductController extends RestController
     
     public function actionProducts($category)
     {
-
+        // $params = $this->request['search'];
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $page = Yii::$app->getRequest()->getQueryParam('page');
+        $limit = Yii::$app->getRequest()->getQueryParam('limit');
+        $order = Yii::$app->getRequest()->getQueryParam('order');
+        $limit = isset($limit) ? $limit : 10;
+        $page = isset($page) ? $page : 1;
+        $offset = ($page - 1) * $limit;
+        // print_r($limit);
+        // exit();
          $model=Category::find()->where(['category_name'=>$category])->all();
           foreach($model as $row)
          {
+             
          $name=$row['id'];
        
          }
-         $model=Product::find()->where(['category'=>$name])->all();
+      
+         $model=Product::find()->where(['category'=>$name])->limit($limit)->all();
          $i=0;
          foreach($model as $row)
          {
@@ -222,8 +233,20 @@ class ProductController extends RestController
              }
              
          }
-        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        return $model;
+        
+       
+
+        $additional_info = [
+            'page' => $page,
+            'size' => $limit,
+             'totalCount' =>count($model)
+        ];
+
+        return [
+            'data' =>$model,
+            'info' => $additional_info
+        ];
+   
     
     }
    
@@ -278,7 +301,8 @@ class ProductController extends RestController
          
         'DeliveryAddress' =>$query1->all(),
         'productsCart'=>$query,
-        'totelAmount'=>$last_for_user->total
+        'totelAmount'=>$last_for_user->total,
+        'msg'=>'expected delivery date 5th november'
         ];
         
         Yii::$app->api->sendSuccessResponse($response['DeliveryAddress'],$response['productsCart']);
