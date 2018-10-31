@@ -286,8 +286,10 @@ class ProductController extends RestController
             {
                 $model = Product::findOne($product->product_id);
             $category=Category::find(['category_name'])->where(['id' =>$model['category']])->one();
+            $product_count=Orders::find(['count'])->andwhere(['product_id' =>$product->product_id])->andwhere(['order_id'=>$max['order_id']])->one();
             $name=$category['category_name'];
             $model['category']=$name;
+            $model['count']=$product_count['count'];
             $query[]=$model;
             $query++;
            
@@ -300,7 +302,7 @@ class ProductController extends RestController
    
         return [
             'DeliveryAddress' =>$query1->all(),
-            'productsCart'=>[
+            'userCart'=>[
                 'order1'=> [
                     'products'=>$product,
                     'totelAmount'=>$last_for_user->total,
