@@ -28,7 +28,7 @@ class ProductController extends RestController
            'apiauth' => [
                'class' => Apiauth::className(),
                'exclude' => ['view','create','index','delete','products','categories','list_customer','view_customer',
-               'list','category_adding','customer_adding','update','delete','update_product','delete_product','delete_order','delete_customer','list_category'],
+               'list','category_adding','customer_adding','update','delete','update_product','delete_product','cancel_order','delete_customer','list_category'],
                'callback'=>[]
            ],
             'access' => [
@@ -283,16 +283,59 @@ class ProductController extends RestController
      
         $category=Orders::find()->where(['customer_id' =>$cus_id])->all();
         $query=array();
-        foreach($category as $product){
-            $model = Product::findOne($product->product_id);
+        $order=array();
+        foreach($category as $order_id)
+        {
+            $order=$order_id['order_id'];
+            // $order++;
+            print_r($order);
+            exit();
+        }
+      
+       
+     
+        for($i=0;$i<count($order);$i++)
+        {
+            // $order=$order_id['order_id'];
+            // $order++;
+            // print_r($order);
+            // exit();
+            $od=$order[$i];
+            $order=$od;
+            // $order++;
+    // print_r($order);
+    // exit();
+            $product_details=Orders::find()->where(['order_id' =>$od])->all();
+            foreach($product_details as $product)
+            {
+                $model = Product::findOne($product->product_id);
             $category=Category::find(['category_name'])->where(['id' =>$model['category']])->one();
-            
             $name=$category['category_name'];
             $model['category']=$name;
+            // $model['order_id'] = 'haai'; 
             $query[]=$model;
             $query++;
-         
+            // $query['order_id']=12;
+            }
+
+            
         }
+        
+     
+      
+        // exit();
+        // foreach($category as $product){
+        //     $model = Product::findOne($product->product_id);
+        //     $category=Category::find(['category_name'])->where(['id' =>$model['category']])->one();
+            
+        //     $name=$category['category_name'];
+        //     $model['category']=$name;
+        //     // $model['order_id'] = 'haai'; 
+        //     $query[]=$model;
+        //     $query++;
+        //     // $query['order_id']=12;
+         
+        // }
         $last_for_user = Total::find()->where('customer_id', $cus_id)->orderBy(['id' => SORT_DESC])->one();
         // print_r($last_for_user->total);
         // exit();
@@ -360,67 +403,94 @@ class ProductController extends RestController
         $model = new Customer;
         $model1=new Total;
        
-       $params = Yii::$app->request->post();
+        $params = Yii::$app->request->post();
         $cn=count($params);
-     
-        if($params){
-            // $model->id = $params['DeliveryAddress']['id'];
-            $model->address = $params['DeliveryAddress']['address'];
-            $model->email= $params['DeliveryAddress']['email'];
-            $model->name = $params['DeliveryAddress']['name'];
-            $model->phone = $params['DeliveryAddress']['phone'];
-            $model->save();
-           
-         
-        if ($model->save()) {
-            // print_r($params['totelAmount']);
-            // exit();
-            $model1->customer_id=$model->id;
+        $email=Customer::find()->where(['email' =>$params['DeliveryAddress']['email']])->one(); 
+        $max = Orders::find()->orderBy("order_id DESC")->one();
+        if($email!=null)
+        {
+        // print_r($email->email);
+        // exit();
+            $model1->customer_id=$email->id;
             $model1->total=$params['totelAmount'];
             $model1->save();
+           
+            // print_r($max['order_id']);
+            // exit();
             for($i=0;$i<=$cn-2;$i++)
             {
+              
                 $model2=new Orders;
-               
-
                 $cus_id=Product::find()->where(['name' =>$params['productsCart'][$i]['name']])->one(); 
-               
-                $model2->customer_id=$model->id;
+                $model2->order_id=$max['order_id']+1;
+                $model2->customer_id=$email->id;
                 $model2->product_id=$cus_id->id;
                 $model2->count=$params['productsCart'][$i]['count'];
-            $model2->save();
-           
-           
-           }
-           return [
-            'data' =>'successfully placed',
-            
-        ];
-            Yii::$app->api->sendSuccessResponse($response['data']); 
+                $model2->flag=0;
+                $model2->save();
+            }
+             return [
+                'data' =>'successfully placed',
         
-     
-      
-        } else {
-            Yii::$app->api->sendFailedResponse($model->errors);
+            ];
+        Yii::$app->api->sendSuccessResponse($response['data']); 
+    
+        }
+        
+        else
+        {
+            if($params){
+                // $model->id = $params['DeliveryAddress']['id'];
+                $model->address = $params['DeliveryAddress']['address'];
+                $model->email= $params['DeliveryAddress']['email'];
+                $model->name = $params['DeliveryAddress']['name'];
+                $model->phone = $params['DeliveryAddress']['phone'];
+                $model->save();
+               
+             
+            if ($model->save()) {
+                // print_r($params['totelAmount']);
+                // exit();
+                $model1->customer_id=$model->id;
+                $model1->total=$params['totelAmount'];
+                $model1->save();
+                for($i=0;$i<=$cn-2;$i++)
+                {
+                    $model2=new Orders;
+                   
+    
+                    $cus_id=Product::find()->where(['name' =>$params['productsCart'][$i]['name']])->one(); 
+                   
+                    $model2->customer_id=$model->id;
+                    $model2->product_id=$cus_id->id;
+                    $model2->count=$params['productsCart'][$i]['count'];
+                $model2->save();
+               
+               
+               }
+               return [
+                'data' =>'successfully placed',
+                
+            ];
+                Yii::$app->api->sendSuccessResponse($response['data']); 
+            
+         
+          
+            } else {
+                // Yii::$app->api->sendFailedResponse($model->errors);
+            }
+        }
         }
     }
-
-    }
-    public function actionDelete_order($id)
+     
+    public function actionCancel_order($order_id,$product_id)
     {
-
-  
-        $model = $this->findModel_order($id);
-        $model->delete();
+      
+        $model=Orders::find()->andwhere(['order_id' =>$order_id])->andwhere([ 'product_id'=>$product_id])->one(); 
+        $model->flag = 1;
+        $model->save();
         Yii::$app->api->sendSuccessResponse($model->attributes);
     }
-    protected function findmodel_order($id)
-    {
-        if (($model = Orders::findOne($id)) !== null) {
-            return $model;
-        } else {
-            Yii::$app->api->sendFailedResponse("Invalid Record requested");
-        }
-    }
+   
 
 }
