@@ -409,20 +409,19 @@ class ProductController extends RestController
         $max = Orders::find()->orderBy("order_id DESC")->one();
         if($email!=null)
         {
-        // print_r($email->email);
-        // exit();
+      
             $model1->customer_id=$email->id;
             $model1->total=$params['totelAmount'];
             $model1->save();
            
-            // print_r($max['order_id']);
-            // exit();
+           
             for($i=0;$i<=$cn-2;$i++)
             {
+                $mod=$max['order_id']+1;
               
                 $model2=new Orders;
                 $cus_id=Product::find()->where(['name' =>$params['productsCart'][$i]['name']])->one(); 
-                $model2->order_id=$max['order_id']+1;
+                $model2->order_id=$mod;
                 $model2->customer_id=$email->id;
                 $model2->product_id=$cus_id->id;
                 $model2->count=$params['productsCart'][$i]['count'];
