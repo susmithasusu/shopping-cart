@@ -298,11 +298,16 @@ class ProductController extends RestController
 
           $last_for_user = Total::find()->where('customer_id', $cus_id)->orderBy(['id' => SORT_DESC])->one();
    
-        return[
-         
-        'DeliveryAddress' =>$query1->all(),
-        'productsCart'=>(['order1'=>[$product,'totelAmount'=>$last_for_user->total,
-        'msg'=>'expected delivery date 5th november','order_id'=>$max['order_id']]])
+        return [
+            'DeliveryAddress' =>$query1->all(),
+            'productsCart'=>[
+                'order1'=> [
+                    'products'=>$product,
+                    'totelAmount'=>$last_for_user->total,
+                    'msg'=>'expected delivery date 5th november',
+                    'order_id'=>$max['order_id']
+                ]
+            ]
         ];
         
         Yii::$app->api->sendSuccessResponse($response['DeliveryAddress'],$response['productsCart']);
