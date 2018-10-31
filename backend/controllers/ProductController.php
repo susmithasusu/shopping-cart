@@ -234,9 +234,7 @@ class ProductController extends RestController
              
          }
         
-       
-
-        $additional_info = [
+            $additional_info = [
             'page' => $page,
             'size' => $limit,
              'totalCount' =>count($model)
@@ -274,89 +272,43 @@ class ProductController extends RestController
      {
     //     \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         $array = array();
-      
         $cus_id=Customer::find()->where(['email' =>$email])->one();
         $query1 =Customer::find()
         ->select(['id', 'address','name', 'email', 'phone'])
         ->where(['email'=>$email])
         ->asArray(true);
-     
-        $category=Orders::find()->where(['customer_id' =>$cus_id])->all();
-        $query=array();
-        $order=array();
-        foreach($category as $order_id)
-        {
-            $ordering=$order_id['order_id'];
-            $order=$ordering;
-             $order++;
-            
-           
-        }
-        print_r($order[0]);
-        
-        exit();
+        $max = Orders::find()->where(['customer_id' =>$cus_id])->orderBy("order_id DESC")->one();
       
-       
-     
-        for($i=0;$i<count($order);$i++)
-        {
-            // $order=$order_id['order_id'];
-            // $order++;
-            // print_r($order);
-            // exit();
-            $od=$order[$i];
-            $order=$od;
-            // $order++;
-    // print_r($order);
-    // exit();
-            $product_details=Orders::find()->where(['order_id' =>$od])->all();
+        $query=array();
+      
+            $product_details= Orders::find()->where(['order_id' =>$max['order_id']])->all();
             foreach($product_details as $product)
             {
                 $model = Product::findOne($product->product_id);
             $category=Category::find(['category_name'])->where(['id' =>$model['category']])->one();
             $name=$category['category_name'];
             $model['category']=$name;
-            // $model['order_id'] = 'haai'; 
             $query[]=$model;
             $query++;
-            // $query['order_id']=12;
+           
             }
-
-            
-        }
-        
-     
-      
-        // exit();
-        // foreach($category as $product){
-        //     $model = Product::findOne($product->product_id);
-        //     $category=Category::find(['category_name'])->where(['id' =>$model['category']])->one();
-            
-        //     $name=$category['category_name'];
-        //     $model['category']=$name;
-        //     // $model['order_id'] = 'haai'; 
-        //     $query[]=$model;
-        //     $query++;
-        //     // $query['order_id']=12;
+            $product=array();
+            $product=$query;
          
-        // }
-        $last_for_user = Total::find()->where('customer_id', $cus_id)->orderBy(['id' => SORT_DESC])->one();
-        // print_r($last_for_user->total);
-        // exit();
 
+          $last_for_user = Total::find()->where('customer_id', $cus_id)->orderBy(['id' => SORT_DESC])->one();
+   
         return[
          
         'DeliveryAddress' =>$query1->all(),
-        'productsCart'=>$query,
-        'totelAmount'=>$last_for_user->total,
-        'msg'=>'expected delivery date 5th november'
+        'productsCart'=>(['order1'=>[$product,'totelAmount'=>$last_for_user->total,
+        'msg'=>'expected delivery date 5th november','order_id'=>$max['order_id']]])
         ];
         
         Yii::$app->api->sendSuccessResponse($response['DeliveryAddress'],$response['productsCart']);
       
-      
-
     }
+
     public function actionCategory_adding()
     {
         $model = new Category;
