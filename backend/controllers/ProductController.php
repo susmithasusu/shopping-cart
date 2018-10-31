@@ -286,11 +286,15 @@ class ProductController extends RestController
         $order=array();
         foreach($category as $order_id)
         {
-            $order=$order_id['order_id'];
-            // $order++;
-            print_r($order);
-            exit();
+            $ordering=$order_id['order_id'];
+            $order=$ordering;
+             $order++;
+            
+           
         }
+        print_r($order[0]);
+        
+        exit();
       
        
      
@@ -404,7 +408,8 @@ class ProductController extends RestController
         $model1=new Total;
        
         $params = Yii::$app->request->post();
-        $cn=count($params);
+        $cn=count($params['productsCart']);
+        
         $email=Customer::find()->where(['email' =>$params['DeliveryAddress']['email']])->one(); 
         $max = Orders::find()->orderBy("order_id DESC")->one();
         if($email!=null)
@@ -415,7 +420,7 @@ class ProductController extends RestController
             $model1->save();
            
            
-            for($i=0;$i<=$cn-2;$i++)
+            for($i=0;$i<=$cn-1;$i++)
             {
                 $mod=$max['order_id']+1;
               
@@ -453,7 +458,7 @@ class ProductController extends RestController
                 $model1->customer_id=$model->id;
                 $model1->total=$params['totelAmount'];
                 $model1->save();
-                for($i=0;$i<=$cn-2;$i++)
+                for($i=0;$i<=$cn-1;$i++)
                 {
                     $model2=new Orders;
                     $mod=$max['order_id']+1;
