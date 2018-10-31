@@ -456,13 +456,14 @@ class ProductController extends RestController
                 for($i=0;$i<=$cn-2;$i++)
                 {
                     $model2=new Orders;
-                   
-    
+                    $mod=$max['order_id']+1;
                     $cus_id=Product::find()->where(['name' =>$params['productsCart'][$i]['name']])->one(); 
-                   
+
+                    $model2->order_id=$mod;
                     $model2->customer_id=$model->id;
                     $model2->product_id=$cus_id->id;
                     $model2->count=$params['productsCart'][$i]['count'];
+                    $model2->flag=0;
                 $model2->save();
                
                

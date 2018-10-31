@@ -30,7 +30,8 @@ class Orders extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['order_id','customer_id', 'product_id','count','flag'], 'required'],
+            [['customer_id', 'product_id','count','flag'], 'required'],
+            [['order_id'], 'integer'],
          
            
         ];
