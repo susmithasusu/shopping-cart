@@ -15,6 +15,7 @@ class m181026_223234_create_address_table extends Migration
         $this->createTable('address', [
             'id' => $this->primaryKey(),
             'customer_id'=>$this->integer(),
+            'order_id'=>$this->integer(),
             'address'=>$this->string(),
         ]);
     }

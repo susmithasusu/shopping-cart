@@ -30,7 +30,7 @@ class Address extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['customer_id', 'address'], 'required'],
+            [['customer_id', 'address','order_id'], 'required'],
          
            
         ];

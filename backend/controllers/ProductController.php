@@ -12,6 +12,7 @@ use yii\web\UploadedFile;
 use common\models\Orders;
 use common\models\Customer;
 use common\models\Total;
+use common\models\Address;
 
 use Yii;
 
@@ -27,7 +28,7 @@ class ProductController extends RestController
 
            'apiauth' => [
                'class' => Apiauth::className(),
-               'exclude' => ['view','create','index','delete','products','categories','list_customer','view_customer',
+               'exclude' => ['view','create','index','delete','products','categories','list_customer','view_customer','listing_orders',
                'list','category_adding','customer_adding','update','delete','update_product','delete_product','cancel_order','delete_customer','list_category'],
                'callback'=>[]
            ],
@@ -365,19 +366,37 @@ class ProductController extends RestController
     {
         $model = new Customer;
         $model1=new Total;
+        $i=0;
        
         $params = Yii::$app->request->post();
         $cn=count($params['productsCart']);
         
         $email=Customer::find()->where(['email' =>$params['DeliveryAddress']['email']])->one(); 
         $max = Orders::find()->orderBy("order_id DESC")->one();
+        $order=$max['order_id']+1;
         if($email!=null)
         {
-      
-            $model1->customer_id=$email->id;
-            $model1->total=$params['totelAmount'];
-            $model1->save();
-           
+            $email1=Address::find()->where(['customer_id' =>$email->id])->all(); 
+            foreach($email1 as $address)
+            {
+                // print_r($address['address']);
+                if(($address['address'])==($params['DeliveryAddress']['address'])){
+                    $i=1;
+
+                }
+                
+              
+            }
+            if($i==0)
+            {
+                $address_model=new Address;
+                $address_model->customer_id=$email->id;
+                $address_model->order_id=$order;
+                $address_model->address=$params['DeliveryAddress']['address'];
+                $address_model->save();
+            }
+         
+          
            
             for($i=0;$i<=$cn-1;$i++)
             {
@@ -392,6 +411,11 @@ class ProductController extends RestController
                 $model2->flag=0;
                 $model2->save();
             }
+            $model1->customer_id=$email->id;
+            $model1->total=$params['totelAmount'];
+            $model1->total_quantity=$i;
+            $model1->save();
+           
              return [
                 'data' =>'successfully placed',
         
@@ -414,6 +438,11 @@ class ProductController extends RestController
             if ($model->save()) {
                 // print_r($params['totelAmount']);
                 // exit();
+                $address_model=new Address;
+                $address_model->customer_id=$email->id;
+                $address_model->order_id=$order;
+                $address_model->address=$params['DeliveryAddress']['address'];
+                $address_model->save();
                 $model1->customer_id=$model->id;
                 $model1->total=$params['totelAmount'];
                 $model1->save();
@@ -432,6 +461,10 @@ class ProductController extends RestController
                
                
                }
+               $model1->customer_id=$email->id;
+               $model1->total=$params['totelAmount'];
+               $model1->total_quantity=$i;
+               $model1->save();
                return [
                 'data' =>'successfully placed',
                 
@@ -455,6 +488,80 @@ class ProductController extends RestController
         $model->save();
         Yii::$app->api->sendSuccessResponse($model->attributes);
     }
+
+
+
+//     public function actionListing_orders($email)
+//     {
+//    //     \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+//        $array = array();
+//        $cus_id=Customer::find()->where(['email' =>$email])->one();
+//        $query1 =Customer::find()
+//        ->select(['id', 'address','name', 'email', 'phone'])
+//        ->where(['email'=>$email])
+//        ->asArray(true);
+//        $max = Orders::find()->where(['customer_id' =>$cus_id])->orderBy("order_id DESC")->all();
+//        $query=array();
+
+//        foreach ($max as $maxing)
+//         {
+//             $product_id = Orders::find()->andwhere(['order_id' =>$maxing['order_id']])->all();
+//             foreach($product_id as $product)
+//             {
+//                 $product_details = Product::find()->andwhere(['id' =>$product['product_id']])->one();
+//                 $category=Category::find(['category_name'])->where(['id' =>$product_details['category']])->one();
+//                 $product_count=Orders::find(['count'])->andwhere(['product_id' =>$product->product_id])->andwhere(['order_id'=>$maxing['order_id']])->one();
+//                 $name=$category['category_name'];
+//                 $model['category']=$name;
+//                 $model['count']=$product_count['count'];
+//                 $query[]=$model;
+//                 $query++;
+               
+//             }
+//             $query=$product_details;
+//             $query++;
+
+       
+
+//         }
+//         // exit();
+       
+     
+//         //    $product_details= Orders::find()->where(['order_id' =>$max['order_id']])->all();
+//         //    foreach($product_details as $product)
+//         //    {
+//         //        $model = Product::findOne($product->product_id);
+//         //    $category=Category::find(['category_name'])->where(['id' =>$model['category']])->one();
+//         //    $product_count=Orders::find(['count'])->andwhere(['product_id' =>$product->product_id])->andwhere(['order_id'=>$max['order_id']])->one();
+//         //    $name=$category['category_name'];
+//         //    $model['category']=$name;
+//         //    $model['count']=$product_count['count'];
+//         //    $query[]=$model;
+//         //    $query++;
+          
+//         //    }
+//         //    $product=array();
+//         //    $product=$query;
+        
+
+//          $last_for_user = Total::find()->where('customer_id', $cus_id)->orderBy(['id' => SORT_DESC])->one();
+  
+//        return [
+//            'DeliveryAddress' =>$query1->all(),
+//            'userCart'=>[
+//                'order1'=> [
+//                    'products'=>$query,
+//                    'totelAmount'=>$last_for_user->total,
+//                    'msg'=>'expected delivery date 5th november',
+//                    'order_id'=>$max['order_id']
+//                ]
+//            ]
+//        ];
+       
+//        Yii::$app->api->sendSuccessResponse($response['DeliveryAddress'],$response['productsCart']);
+     
+//    }
+
    
 
 }
