@@ -303,17 +303,13 @@ class ProductController extends RestController
    
         return [
             'orders'=>[
-                [ 'totelAmount'=>$last_for_user->total,
+                'totelAmount'=>$last_for_user->total,
                 'totalQuantity'=>$last_for_user->total_quantity,
                 'msg'=>'expected delivery date 5th november',
                 'order_id'=>$max['order_id'],
                 'DeliveryAddress' =>$cus_id,
-              
                 'products'=>$product,
-                   
-                ]]
-            
-        
+            ]
         ];
         
         Yii::$app->api->sendSuccessResponse($response['DeliveryAddress'],$response['productsCart']);
@@ -487,77 +483,81 @@ class ProductController extends RestController
 
 
 
-//     public function actionListing_orders($email)
-//     {
-//    //     \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-//        $array = array();
-//        $cus_id=Customer::find()->where(['email' =>$email])->one();
-//        $query1 =Customer::find()
-//        ->select(['id', 'address','name', 'email', 'phone'])
-//        ->where(['email'=>$email])
-//        ->asArray(true);
-//        $max = Orders::find()->where(['customer_id' =>$cus_id])->orderBy("order_id DESC")->all();
-//        $query=array();
-
-//        foreach ($max as $maxing)
-//         {
-//             $product_id = Orders::find()->andwhere(['order_id' =>$maxing['order_id']])->all();
-//             foreach($product_id as $product)
-//             {
-//                 $product_details = Product::find()->andwhere(['id' =>$product['product_id']])->one();
-//                 $category=Category::find(['category_name'])->where(['id' =>$product_details['category']])->one();
-//                 $product_count=Orders::find(['count'])->andwhere(['product_id' =>$product->product_id])->andwhere(['order_id'=>$maxing['order_id']])->one();
-//                 $name=$category['category_name'];
-//                 $model['category']=$name;
-//                 $model['count']=$product_count['count'];
-//                 $query[]=$model;
-//                 $query++;
-               
-//             }
-//             $query=$product_details;
-//             $query++;
-
-       
-
-//         }
-//         // exit();
-       
-     
-//         //    $product_details= Orders::find()->where(['order_id' =>$max['order_id']])->all();
-//         //    foreach($product_details as $product)
-//         //    {
-//         //        $model = Product::findOne($product->product_id);
-//         //    $category=Category::find(['category_name'])->where(['id' =>$model['category']])->one();
-//         //    $product_count=Orders::find(['count'])->andwhere(['product_id' =>$product->product_id])->andwhere(['order_id'=>$max['order_id']])->one();
-//         //    $name=$category['category_name'];
-//         //    $model['category']=$name;
-//         //    $model['count']=$product_count['count'];
-//         //    $query[]=$model;
-//         //    $query++;
-          
-//         //    }
-//         //    $product=array();
-//         //    $product=$query;
+    public function actionListing_orders($email) {
+        //     \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+      
+        $ordering=array();
+        $new_arr=array();
+        $cus_id=Customer::find()->where(['email' =>$email])->one();
         
-
-//          $last_for_user = Total::find()->where('customer_id', $cus_id)->orderBy(['id' => SORT_DESC])->one();
-  
-//        return [
-//            'DeliveryAddress' =>$query1->all(),
-//            'userCart'=>[
-//                'order1'=> [
-//                    'products'=>$query,
-//                    'totelAmount'=>$last_for_user->total,
-//                    'msg'=>'expected delivery date 5th november',
-//                    'order_id'=>$max['order_id']
-//                ]
-//            ]
-//        ];
+        $all_orders='';
+        
+        $products=array();
+        $max = Orders::find()->where(['customer_id' =>$cus_id['id']])->orderBy("order_id DESC")->all();
+        
+        foreach($max as $ma){
+            $all_orders=$all_orders.'$'.$ma['order_id'];
+        } 
+        
+        $arr = explode("$", $all_orders);
+        $new=array();
+        for($i=0;$i<count($arr);$i++){
+            
+            if (in_array($arr[$i],$new)){
+                
+            }
+            else{
+                $new[]=$arr[$i];
+                $new++; 
+            }
+        }
+        
+        $array=array();
+        for($i=1;$i<count($new);$i++)
+        {
+            $query=array();
+            
        
-//        Yii::$app->api->sendSuccessResponse($response['DeliveryAddress'],$response['productsCart']);
-     
-//    }
-
-   
-
+            $orders = Orders::find()->andwhere(['order_id' =>$new[$i]])->all();
+            foreach($orders as $ord)
+            {
+         
+                $product_details = Product::find()->andwhere(['id' =>$ord['product_id']])->one();
+                $total=Total::find()->andwhere(['id' =>$ord['order_id']])->one();
+                $category=Category::find(['category_name'])->where(['id' =>$product_details['category']])->one();
+                $name=$category['category_name'];
+                $product_details['category']=$ord['flag'];
+                $product_details['count']=$ord['count'];
+                $query[]=$product_details;
+                $query++;
+                $ordering=$query;
+                
+                $array[$i-1]= [
+                    'totelAmount'=>$total->total,
+                    'totalQuantity'=>$total->total_quantity,
+                    'msg'=>'expected delivery date 5th november',
+                    'order_id'=>$new[$i],
+                    'DeliveryAddress' =>$cus_id,
+                    'products'=> $ordering           
+                ];
+          
+                $array++;
+             
+            }  
+        }
+        return [
+            'orders'=>$array
+        ];
+                
+        Yii::$app->api->sendSuccessResponse($response['DeliveryAddress'],$response['productsCart']);
+    }
 }
+    
+    
+
+
+
+
+
+
+           

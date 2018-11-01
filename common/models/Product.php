@@ -22,7 +22,7 @@ class Product extends \yii\db\ActiveRecord
     /**
      * @inheritdoc
      */
-    public $order_id;
+    public $flag;
     public static function tableName()
     {
         return 'product';
