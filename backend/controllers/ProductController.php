@@ -382,10 +382,8 @@ class ProductController extends RestController
                 // print_r($address['address']);
                 if(($address['address'])==($params['DeliveryAddress']['address'])){
                     $i=1;
-
                 }
                 
-              
             }
             if($i==0)
             {
@@ -396,12 +394,9 @@ class ProductController extends RestController
                 $address_model->save();
             }
          
-          
-           
             for($i=0;$i<=$cn-1;$i++)
             {
                 $mod=$max['order_id']+1;
-              
                 $model2=new Orders;
                 $cus_id=Product::find()->where(['name' =>$params['productsCart'][$i]['name']])->one(); 
                 $model2->order_id=$mod;
@@ -410,7 +405,9 @@ class ProductController extends RestController
                 $model2->count=$params['productsCart'][$i]['count'];
                 $model2->flag=0;
                 $model2->save();
+                $cnt=$i;
             }
+            
             $model1->customer_id=$email->id;
             $model1->total=$params['totelAmount'];
             $model1->total_quantity=$i;
@@ -426,6 +423,7 @@ class ProductController extends RestController
         
         else
         {
+        
             if($params){
                 // $model->id = $params['DeliveryAddress']['id'];
                 $model->address = $params['DeliveryAddress']['address'];
@@ -435,48 +433,43 @@ class ProductController extends RestController
                 $model->save();
                
              
-            if ($model->save()) {
+                if ($model->save()) {
                 // print_r($params['totelAmount']);
                 // exit();
-                $address_model=new Address;
-                $address_model->customer_id=$model->id;
-                $address_model->order_id=$order;
-                $address_model->address=$params['DeliveryAddress']['address'];
-                $address_model->save();
-                $model1->customer_id=$model->id;
-                $model1->total=$params['totelAmount'];
-                $model1->save();
-                for($i=0;$i<=$cn-1;$i++)
-                {
-                    $model2=new Orders;
-                    $mod=$max['order_id']+1;
-                    $cus_id=Product::find()->where(['name' =>$params['productsCart'][$i]['name']])->one(); 
+                    $address_model=new Address;
+                    $address_model->customer_id=$model->id;
+                    $address_model->order_id=$order;
+                    $address_model->address=$params['DeliveryAddress']['address'];
+                    $address_model->save();
+               
+                    for($i=0;$i<=$cn-1;$i++)
+                    {
+                        $model2=new Orders;
+                        $mod=$max['order_id']+1;
+                        $cus_id=Product::find()->where(['name' =>$params['productsCart'][$i]['name']])->one(); 
 
-                    $model2->order_id=$mod;
-                    $model2->customer_id=$model->id;
-                    $model2->product_id=$cus_id->id;
-                    $model2->count=$params['productsCart'][$i]['count'];
-                    $model2->flag=0;
-                $model2->save();
+                        $model2->order_id=$mod;
+                        $model2->customer_id=$model->id;
+                        $model2->product_id=$cus_id->id;
+                        $model2->count=$params['productsCart'][$i]['count'];
+                        $model2->flag=0;
+                        $model2->save();
                
-               
-               }
-               $model1->customer_id=$email->id;
-               $model1->total=$params['totelAmount'];
-               $model1->total_quantity=$i;
-               $model1->save();
-               return [
-                'data' =>'successfully placed',
+                    }
+                    $model1->customer_id=$model->id;
+                    $model1->total=$params['totelAmount'];
+                    $model1->total_quantity=$i;
+                    $model1->save();
+                    return [
+                        'data' =>'successfully placed',
                 
-            ];
-                Yii::$app->api->sendSuccessResponse($response['data']); 
+                    ];
+                    Yii::$app->api->sendSuccessResponse($response['data']); 
             
-         
-          
-            } else {
+                } else {
                 // Yii::$app->api->sendFailedResponse($model->errors);
+                }
             }
-        }
         }
     }
      
