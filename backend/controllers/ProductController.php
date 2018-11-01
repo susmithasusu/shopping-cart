@@ -439,7 +439,7 @@ class ProductController extends RestController
                 // print_r($params['totelAmount']);
                 // exit();
                 $address_model=new Address;
-                $address_model->customer_id=$email->id;
+                $address_model->customer_id=$model->id;
                 $address_model->order_id=$order;
                 $address_model->address=$params['DeliveryAddress']['address'];
                 $address_model->save();
