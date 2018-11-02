@@ -15,6 +15,7 @@ class m181030_054901_create_total_table extends Migration
         $this->createTable('total', [
             'id' => $this->primaryKey(),
             'customer_id'=>$this->integer(),
+            'order_id'=>$this->integer(),
             'total'=>$this->integer(),
         ]);
     }

@@ -84,17 +84,10 @@ class ProductController extends RestController
         if($params){
         
         $category=Category::find(['id'])->where(['category_name' =>$params['category']])->one();
-       
-            $cat_id= $category['id'];
-          
-           
-       $image=UploadedFile::getInstanceByName('image');
-    //    print_r($image);
-    //    exit();
-      
-       $imgName='img_'.$params['name'] .'.'.$image->getExtension();
-          
-       $image->saveAs(Yii::getAlias('@uploadsImgPath').'/'.$imgName);
+        $cat_id= $category['id'];
+        $image=UploadedFile::getInstanceByName('image');
+        $imgName='img_'.$params['name'] .'.'.$image->getExtension();
+        $image->saveAs(Yii::getAlias('@uploadsImgPath').'/'.$imgName);
      
         $model->category =$cat_id;
         $model->name=$params['name'];
@@ -111,9 +104,6 @@ class ProductController extends RestController
         }
     }
     }
-
-    
-
     public function actionUpdate($id)
     {
 
@@ -202,7 +192,6 @@ class ProductController extends RestController
     
     public function actionProducts($category)
     {
-        // $params = $this->request['search'];
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         $page = Yii::$app->getRequest()->getQueryParam('page');
         $limit = Yii::$app->getRequest()->getQueryParam('limit');
@@ -210,15 +199,11 @@ class ProductController extends RestController
         $limit = isset($limit) ? $limit : 10;
         $page = isset($page) ? $page : 1;
         $offset = ($page - 1) * $limit;
-        // print_r($limit);
-        // exit();
-         $model=Category::find()->where(['category_name'=>$category])->all();
-          foreach($model as $row)
-         {
-             
-         $name=$row['id'];
-       
-         }
+        $model=Category::find()->where(['category_name'=>$category])->all();
+        foreach($model as $row)
+        {
+             $name=$row['id'];
+        }
       
          $model=Product::find()->where(['category'=>$name])->limit($limit)->all();
          $i=0;
@@ -230,12 +215,10 @@ class ProductController extends RestController
                  $name=$ca['category_name'];
                  $model[$i]['category']=$name;
                  $i=$i+1;
-             
-             }
+              }
              
          }
-        
-            $additional_info = [
+         $additional_info = [
             'page' => $page,
             'size' => $limit,
              'totalCount' =>count($model)
@@ -245,8 +228,6 @@ class ProductController extends RestController
             'data' =>$model,
             'info' => $additional_info
         ];
-   
-    
     }
    
     public function actionCategories()
@@ -264,58 +245,8 @@ class ProductController extends RestController
     {
         $model = new Customer();
         $model1=new Order();
-        
-     
         $model->attributes = $this->request;
-
     }
-    public function actionList($email)
-     {
-    //     \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        $array = array();
-        $cus_id=Customer::find()->where(['email' =>$email])->one();
-        $query1 =Customer::find()
-        ->select(['id', 'address','name', 'email', 'phone'])
-        ->where(['email'=>$email])
-        ->asArray(true);
-        $max = Orders::find()->where(['customer_id' =>$cus_id])->orderBy("order_id DESC")->one();
-      
-        $query=array();
-      
-            $product_details= Orders::find()->where(['order_id' =>$max['order_id']])->all();
-            foreach($product_details as $product)
-            {
-                $model = Product::findOne($product->product_id);
-            $category=Category::find(['category_name'])->where(['id' =>$model['category']])->one();
-            $product_count=Orders::find(['count'])->andwhere(['product_id' =>$product->product_id])->andwhere(['order_id'=>$max['order_id']])->one();
-            $name=$category['category_name'];
-            $model['category']=$name;
-            $model['count']=$product_count['count'];
-            $query[]=$model;
-            $query++;
-           
-            }
-            $product=array();
-            $product=$query;
-         
-
-          $last_for_user = Total::find()->where('customer_id', $cus_id)->orderBy(['id' => SORT_DESC])->one();
-   
-        return [
-            'orders'=>[
-                'totelAmount'=>$last_for_user->total,
-                'totalQuantity'=>$last_for_user->total_quantity,
-                'msg'=>'expected delivery date 5th november',
-                'order_id'=>$max['order_id'],
-                'DeliveryAddress' =>$cus_id,
-                'products'=>$product,
-            ]
-        ];
-        
-        Yii::$app->api->sendSuccessResponse($response['DeliveryAddress'],$response['productsCart']);
-      
-    }
-
     public function actionCategory_adding()
     {
         $model = new Category;
@@ -326,7 +257,6 @@ class ProductController extends RestController
         } else {
             Yii::$app->api->sendFailedResponse($model->errors);
         }
-
     }
     public function actionList_customer()
     {
@@ -336,7 +266,6 @@ class ProductController extends RestController
     }
     public function actionDelete_customer($id)
     {
-
         $model = $this->findModel3($id);
         $model->delete();
         Yii::$app->api->sendSuccessResponse($model->attributes);
@@ -351,7 +280,6 @@ class ProductController extends RestController
     }
     public function actionView_customer($id)
     {
-
         $model = $this->findModel3($id);
         Yii::$app->api->sendSuccessResponse($model->attributes);
     }
@@ -408,6 +336,7 @@ class ProductController extends RestController
             }
             
             $model1->customer_id=$email->id;
+            $model1->order_id=$order;
             $model1->total=$params['totelAmount'];
             $model1->total_quantity=$i;
             $model1->save();
@@ -424,17 +353,15 @@ class ProductController extends RestController
         {
         
             if($params){
-                // $model->id = $params['DeliveryAddress']['id'];
+           
                 $model->address = $params['DeliveryAddress']['address'];
                 $model->email= $params['DeliveryAddress']['email'];
                 $model->name = $params['DeliveryAddress']['name'];
                 $model->phone = $params['DeliveryAddress']['phone'];
                 $model->save();
                
-             
                 if ($model->save()) {
-                // print_r($params['totelAmount']);
-                // exit();
+
                     $address_model=new Address;
                     $address_model->customer_id=$model->id;
                     $address_model->order_id=$order;
@@ -446,16 +373,15 @@ class ProductController extends RestController
                         $model2=new Orders;
                         $mod=$max['order_id']+1;
                         $cus_id=Product::find()->where(['name' =>$params['productsCart'][$i]['name']])->one(); 
-
                         $model2->order_id=$mod;
                         $model2->customer_id=$model->id;
                         $model2->product_id=$cus_id->id;
                         $model2->count=$params['productsCart'][$i]['count'];
                         $model2->flag=0;
                         $model2->save();
-               
                     }
                     $model1->customer_id=$model->id;
+                    $model1->order_id=$order;
                     $model1->total=$params['totelAmount'];
                     $model1->total_quantity=$i;
                     $model1->save();
@@ -474,24 +400,18 @@ class ProductController extends RestController
      
     public function actionCancel_order($order_id,$product_id)
     {
-      
         $model=Orders::find()->andwhere(['order_id' =>$order_id])->andwhere([ 'product_id'=>$product_id])->one(); 
         $model->flag = 1;
         $model->save();
         Yii::$app->api->sendSuccessResponse($model->attributes);
     }
 
-
-
     public function actionListing_orders($email) {
         //     \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-      
         $ordering=array();
         $new_arr=array();
         $cus_id=Customer::find()->where(['email' =>$email])->one();
-        
         $all_orders='';
-        
         $products=array();
         $max = Orders::find()->where(['customer_id' =>$cus_id['id']])->orderBy("order_id DESC")->all();
         
@@ -516,14 +436,13 @@ class ProductController extends RestController
         for($i=1;$i<count($new);$i++)
         {
             $query=array();
-            
-       
             $orders = Orders::find()->andwhere(['order_id' =>$new[$i]])->all();
+           
             foreach($orders as $ord)
             {
          
                 $product_details = Product::find()->andwhere(['id' =>$ord['product_id']])->one();
-                $total=Total::find()->andwhere(['id' =>$ord['order_id']])->one();
+                $total=Total::find()->andwhere(['order_id' =>$ord['order_id']])->one();
                 $category=Category::find(['category_name'])->where(['id' =>$product_details['category']])->one();
                 $name=$category['category_name'];
                 $product_details['category']=$ord['flag'];
