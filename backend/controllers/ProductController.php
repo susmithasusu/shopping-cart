@@ -28,7 +28,7 @@ class ProductController extends RestController
 
            'apiauth' => [
                'class' => Apiauth::className(),
-               'exclude' => ['view','create','index','delete','products','categories','list_customer','view_customer','listing_orders',
+               'exclude' => ['view','create','index','delete','products','categories','category_all','list_customer','view_customer','listing_orders','cancel_all','list_emails',
                'list','category_adding','customer_adding','update','delete','update_product','delete_product','cancel_order','delete_customer','list_category'],
                'callback'=>[]
            ],
@@ -61,8 +61,9 @@ class ProductController extends RestController
                     'index' => ['GET', 'POST'],
                     'create','category_adding' => ['POST'],
                     'update' => ['PUT'],
-                    'view' => ['GET'],
-                    'delete' => ['DELETE']
+                    'view' => ['GET']
+                    // 'delete'
+                    // => ['DELETE']
                 ],
             ],
 
@@ -407,7 +408,7 @@ class ProductController extends RestController
     }
 
     public function actionListing_orders($email) {
-        //     \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         $ordering=array();
         $new_arr=array();
         $cus_id=Customer::find()->where(['email' =>$email])->one();
@@ -436,6 +437,7 @@ class ProductController extends RestController
         for($i=1;$i<count($new);$i++)
         {
             $query=array();
+            $new_query=array();
             $orders = Orders::find()->andwhere(['order_id' =>$new[$i]])->all();
            
             foreach($orders as $ord)
@@ -447,8 +449,12 @@ class ProductController extends RestController
                 $name=$category['category_name'];
                 $product_details['category']=$ord['flag'];
                 $product_details['count']=$ord['count'];
+                $product_details['flag']=$ord['flag'];
                 $query[]=$product_details;
                 $query++;
+                // $query[$product_details]['flag']=0;
+                $query++;
+                
                 $ordering=$query;
                 
                 $array[$i-1]= [
@@ -469,6 +475,59 @@ class ProductController extends RestController
         ];
                 
         Yii::$app->api->sendSuccessResponse($response['DeliveryAddress'],$response['productsCart']);
+    }
+    public function actionCancel_all($order_id)
+    {
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $model=Orders::find()->where(['order_id' =>$order_id])->all(); 
+        foreach($model as $del)
+        {
+        $del->flag = 1;
+        $del->save();
+        }
+        return [
+            'data'=>'successfully canceled'
+        ];
+
+    }
+    public function actionList_emails()
+    {   
+        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
+        $array=array();
+     
+        $model=Customer::find()->all(); 
+        foreach($model as $user)
+        {
+            $array[]=$user['email'];
+            $array++;
+        }
+     
+        return[
+            'emails'=>$array
+
+        ];
+    }
+    public function actionCategory_all()
+    {
+        $array=array();
+        $params = Yii::$app->request->post();
+        for($i=0;$i<count($params);$i++)
+        {   
+            $name=Category::find()->where(['Category_name' =>$params[$i]])->one(); 
+            $model=Product::find()->where(['Category' =>$name->id])->all(); 
+            foreach($model as $product)
+            {
+            //     print_r($product);
+            $new=Product::find()->where(['id' =>$product->id])->one(); 
+            $new['category']=$params[$i];
+            $array[]=$new;
+            $array++;
+            }
+           
+        }
+        return[
+            'data'=>$array
+        ];
     }
 }
     

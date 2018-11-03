@@ -55,7 +55,6 @@ class Category extends \yii\db\ActiveRecord
         $page = Yii::$app->getRequest()->getQueryParam('page');
         $limit = Yii::$app->getRequest()->getQueryParam('limit');
         $order = Yii::$app->getRequest()->getQueryParam('order');
-
         $search = Yii::$app->getRequest()->getQueryParam('search');
 
         if(isset($search)){

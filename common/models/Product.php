@@ -36,7 +36,7 @@ class Product extends \yii\db\ActiveRecord
         return [
             [['category', 'name', 'image', 'description','price','count'], 'required'],
             [[ 'name', 'image', 'description'], 'string', 'max' => 200],
-            [['price','count','category','order_id'], 'integer'],
+            [['price','count','category'], 'integer'],
            
         ];
     }
@@ -53,6 +53,7 @@ class Product extends \yii\db\ActiveRecord
             'description' => 'Description',
             'price' => 'Price',
             'count'=>'Count',
+            'flag'=>'Flag',
             
         ];
     }
@@ -91,6 +92,9 @@ class Product extends \yii\db\ActiveRecord
                     $name=$ca->category_name;
                     $query[$i]['category']=$name;
                     $i=$i+1;
+                    // $response = Product::make($row->image, 200);
+                    // $response->header('Content-Type', 'image/jpg');
+                    // return $response;
                 
                  }
             }
