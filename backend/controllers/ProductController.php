@@ -13,6 +13,7 @@ use common\models\Orders;
 use common\models\Customer;
 use common\models\Total;
 use common\models\Address;
+use yii\helpers\Url;
 
 use Yii;
 
@@ -87,7 +88,7 @@ class ProductController extends RestController
         $image = str_replace(' ', '+', $image);
         $data = base64_decode($image);
         $imgName='img_'.$this->request['name'] .'.'.'png';
-        file_put_contents(\Yii::$app->urlManager->createAbsoluteUrl('uploads').'/'.$imgName, $data);
+        file_put_contents(\Yii::$app->basePath.'/web/uploads/'.$imgName, $data);
 
         $category=Category::find(['id'])->where(['category_name' =>$this->request['category']])->one();
         $cat_id= $category['id'];
@@ -175,6 +176,7 @@ class ProductController extends RestController
   
       protected function findModel($id)
     {
+       
         if (($model = Product::findOne($id)) !== null) {
             $model1=Product::find()->where(['id'=>$id])->all();
             foreach($model1 as $row)
@@ -184,7 +186,7 @@ class ProductController extends RestController
                  {
                     $name=$ca['category_name'];
                     $model['category']=$name;
-                    $model['image']=\Yii::$app->basePath.'/web/uploads/'. $model['image'];
+                    $model['image']=Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'. $model['image'];
                     
                 
                 }
@@ -198,6 +200,7 @@ class ProductController extends RestController
     
     public function actionProducts($category)
     {
+        
         Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         $page = Yii::$app->getRequest()->getQueryParam('page');
         $limit = Yii::$app->getRequest()->getQueryParam('limit');
@@ -220,7 +223,7 @@ class ProductController extends RestController
               {
                  $name=$ca['category_name'];
                  $model[$i]['category']=$name;
-                 $model[$i]['image']=\Yii::$app->basePath.'/web/uploads/'. $model[$i]['image'];
+                 $model[$i]['image']=Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'. $model[$i]['image'];
                  $i=$i+1;
               }
              
@@ -460,7 +463,7 @@ class ProductController extends RestController
                 $name=$category['category_name'];
                 $product_details['category']=$ord['flag'];
                 $product_details['count']=$ord['count'];
-                $product_details['image']=\Yii::$app->basePath.'/web/uploads/'.$product_details['image'];
+                $product_details['image']=Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'.$product_details['image'];
                 // $img = Yii::$app->request->baseUrl.'/web/uploads/';
 
                 $product_details['flag']=$ord['flag'];
