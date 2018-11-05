@@ -79,8 +79,12 @@ class ProductController extends RestController
 
     public function actionCreate()
     {
-        
+        // $model->attributes = $this->request;
+        print_r( $this->request);
+        exit();
         $model = new Product;
+      
+       
         $params = Yii::$app->request->post();
         if($params){
         
@@ -219,15 +223,18 @@ class ProductController extends RestController
               }
              
          }
-         $additional_info = [
+        //  $additional_info = [
+        //     'page' => $page,
+        //     'size' => $limit,
+        //      'totalCount' =>count($model)
+        // ];
+
+        return [
+            'products' =>$model,
             'page' => $page,
             'size' => $limit,
              'totalCount' =>count($model)
-        ];
 
-        return [
-            'data' =>$model,
-            'info' => $additional_info
         ];
     }
    
@@ -249,7 +256,9 @@ class ProductController extends RestController
         $model->attributes = $this->request;
     }
     public function actionCategory_adding()
-    {
+    {   
+        print_r($this->request);
+        exit();
         $model = new Category;
         $model->attributes = $this->request;
 
