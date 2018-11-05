@@ -79,28 +79,26 @@ class ProductController extends RestController
 
     public function actionCreate()
     {
-        // $model->attributes = $this->request;
-        print_r( $this->request);
-        exit();
-        $model = new Product;
-      
        
-        $params = Yii::$app->request->post();
-        if($params){
-        
-        $category=Category::find(['id'])->where(['category_name' =>$params['category']])->one();
-        $cat_id= $category['id'];
-        $image=UploadedFile::getInstanceByName('image');
-        $imgName='img_'.$params['name'] .'.'.$image->getExtension();
-        $image->saveAs(Yii::getAlias('@uploadsImgPath').'/'.$imgName);
-     
-        $model->category =$cat_id;
-        $model->name=$params['name'];
-        $model->image=$imgName;
-        $model->description=$params['description'];
-        $model->price=$params['price'];
-        $model->count=$params['count'];
+        $content= base64_decode($this->request['image']);
+        $model = new Product;
+        $image = $this->request['image']; 
+        $image = str_replace('data:image/png;base64,', '', $image);
+        $image = str_replace(' ', '+', $image);
+        $data = base64_decode($image);
+        $imgName='img_'.$this->request['name'] .'.'.'png';
+        file_put_contents(Yii::getAlias('@uploadsImgPath').'/'.$imgName, $data);
 
+        $category=Category::find(['id'])->where(['category_name' =>$this->request['category']])->one();
+        $cat_id= $category['id'];
+        $model->category =$cat_id;
+        $model->name=$this->request['name'];
+        $model->image=$imgName;
+        $model->description=$this->request['description'];
+        $model->price=$this->request['price'];
+        $model->count=$this->request['count'];
+        $model->save();
+        
         if ($model->save()) {
           
             Yii::$app->api->sendSuccessResponse($model->attributes);
@@ -108,7 +106,7 @@ class ProductController extends RestController
             Yii::$app->api->sendFailedResponse($model->errors);
         }
     }
-    }
+    
     public function actionUpdate($id)
     {
 
@@ -458,6 +456,7 @@ class ProductController extends RestController
                 $name=$category['category_name'];
                 $product_details['category']=$ord['flag'];
                 $product_details['count']=$ord['count'];
+                $product_details['image']=Yii::getAlias('@uploadsImgPath').'/'.'img_moto.png';
                 $product_details['flag']=$ord['flag'];
                 $query[]=$product_details;
                 $query++;
