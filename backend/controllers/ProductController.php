@@ -183,6 +183,8 @@ class ProductController extends RestController
                  {
                     $name=$ca['category_name'];
                     $model['category']=$name;
+                    $model['image']=Yii::getAlias('@uploadsImgPath').'/'. $model['image'];
+                    
                 
                 }
                 
@@ -217,6 +219,7 @@ class ProductController extends RestController
               {
                  $name=$ca['category_name'];
                  $model[$i]['category']=$name;
+                 $model[$i]['image']=Yii::getAlias('@uploadsImgPath').'/'. $model[$i]['image'];
                  $i=$i+1;
               }
              
@@ -456,7 +459,7 @@ class ProductController extends RestController
                 $name=$category['category_name'];
                 $product_details['category']=$ord['flag'];
                 $product_details['count']=$ord['count'];
-                $product_details['image']=Yii::getAlias('@uploadsImgPath').'/'.'img_moto.png';
+                $product_details['image']=Yii::getAlias('@uploadsImgPath').'/'.$product_details['image'];
                 $product_details['flag']=$ord['flag'];
                 $query[]=$product_details;
                 $query++;
