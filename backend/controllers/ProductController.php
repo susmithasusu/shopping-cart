@@ -87,7 +87,7 @@ class ProductController extends RestController
         $image = str_replace(' ', '+', $image);
         $data = base64_decode($image);
         $imgName='img_'.$this->request['name'] .'.'.'png';
-        file_put_contents(Yii::getAlias('@uploadsImgPath').'/'.$imgName, $data);
+        file_put_contents(Yii::$app->request->baseUrl.'/web/uploads/'.$imgName, $data);
 
         $category=Category::find(['id'])->where(['category_name' =>$this->request['category']])->one();
         $cat_id= $category['id'];
@@ -183,7 +183,7 @@ class ProductController extends RestController
                  {
                     $name=$ca['category_name'];
                     $model['category']=$name;
-                    $model['image']=Yii::getAlias('@uploadsImgPath').'/'. $model['image'];
+                    $model['image']=Yii::$app->request->baseUrl.'/web/uploads/'. $model['image'];
                     
                 
                 }
@@ -219,7 +219,7 @@ class ProductController extends RestController
               {
                  $name=$ca['category_name'];
                  $model[$i]['category']=$name;
-                 $model[$i]['image']=Yii::getAlias('@uploadsImgPath').'/'. $model[$i]['image'];
+                 $model[$i]['image']=Yii::$app->request->baseUrl.'/web/uploads/'. $model[$i]['image'];
                  $i=$i+1;
               }
              
@@ -448,22 +448,25 @@ class ProductController extends RestController
         {
             $query=array();
             $new_query=array();
-            $orders = Orders::find()->andwhere(['order_id' =>$new[$i]])->all();
+            $orders = Orders::find()->where(['order_id' =>$new[$i]])->all();
            
             foreach($orders as $ord)
             {
          
-                $product_details = Product::find()->andwhere(['id' =>$ord['product_id']])->one();
-                $total=Total::find()->andwhere(['order_id' =>$ord['order_id']])->one();
+                $product_details = Product::find()->where(['id' =>$ord['product_id']])->one();
+                $total=Total::find()->where(['order_id' =>$ord['order_id']])->one();
                 $category=Category::find(['category_name'])->where(['id' =>$product_details['category']])->one();
                 $name=$category['category_name'];
                 $product_details['category']=$ord['flag'];
                 $product_details['count']=$ord['count'];
-                $product_details['image']=Yii::getAlias('@uploadsImgPath').'/'.$product_details['image'];
-                $product_details['flag']=$ord['flag'];
+                $product_details['image']=Yii::$app->request->baseUrl.'/web/uploads/'.$product_details['image'];
+                // $img = Yii::$app->request->baseUrl.'/web/uploads/';
+
+                $product_details->flag=$ord['flag'];
                 $query[]=$product_details;
-                $query++;
-                // $query[$product_details]['flag']=0;
+                // $query++;
+                // // $query[$product_details]['flag']=0;
+                // $product_details->attributes = [['flag'] = $ord['flag']];
                 $query++;
                 
                 $ordering=$query;
