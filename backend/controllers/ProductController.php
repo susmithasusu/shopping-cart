@@ -87,7 +87,7 @@ class ProductController extends RestController
         $image = str_replace(' ', '+', $image);
         $data = base64_decode($image);
         $imgName='img_'.$this->request['name'] .'.'.'png';
-        file_put_contents(Yii::$app->request->baseUrl.'/web/uploads/'.$imgName, $data);
+        file_put_contents(\Yii::$app->basePath.'/web/uploads/'.$imgName, $data);
 
         $category=Category::find(['id'])->where(['category_name' =>$this->request['category']])->one();
         $cat_id= $category['id'];
@@ -183,7 +183,7 @@ class ProductController extends RestController
                  {
                     $name=$ca['category_name'];
                     $model['category']=$name;
-                    $model['image']=Yii::$app->request->baseUrl.'/web/uploads/'. $model['image'];
+                    $model['image']=\Yii::$app->basePath.'/web/uploads/'. $model['image'];
                     
                 
                 }
@@ -219,7 +219,7 @@ class ProductController extends RestController
               {
                  $name=$ca['category_name'];
                  $model[$i]['category']=$name;
-                 $model[$i]['image']=Yii::$app->request->baseUrl.'/web/uploads/'. $model[$i]['image'];
+                 $model[$i]['image']=\Yii::$app->basePath.'/web/uploads/'. $model[$i]['image'];
                  $i=$i+1;
               }
              
@@ -459,7 +459,7 @@ class ProductController extends RestController
                 $name=$category['category_name'];
                 $product_details['category']=$ord['flag'];
                 $product_details['count']=$ord['count'];
-                $product_details['image']=Yii::$app->request->baseUrl.'/web/uploads/'.$product_details['image'];
+                $product_details['image']=\Yii::$app->basePath.'/web/uploads/'.$product_details['image'];
                 // $img = Yii::$app->request->baseUrl.'/web/uploads/';
 
                 $product_details->flag=$ord['flag'];
