@@ -87,7 +87,7 @@ class ProductController extends RestController
         $image = str_replace(' ', '+', $image);
         $data = base64_decode($image);
         $imgName='img_'.$this->request['name'] .'.'.'png';
-        file_put_contents(\Yii::$app->basePath.'/web/uploads/'.$imgName, $data);
+        file_put_contents(\Yii::$app->urlManager->createAbsoluteUrl('uploads').'/'.$imgName, $data);
 
         $category=Category::find(['id'])->where(['category_name' =>$this->request['category']])->one();
         $cat_id= $category['id'];
@@ -98,6 +98,7 @@ class ProductController extends RestController
         $model->price=$this->request['price'];
         $model->count=$this->request['count'];
         $model->save();
+        // $model['image']=\Yii::$app->basePath.'/web/uploads/'.$imgName;
         
         if ($model->save()) {
           
@@ -462,7 +463,7 @@ class ProductController extends RestController
                 $product_details['image']=\Yii::$app->basePath.'/web/uploads/'.$product_details['image'];
                 // $img = Yii::$app->request->baseUrl.'/web/uploads/';
 
-                $product_details->flag=$ord['flag'];
+                $product_details['flag']=$ord['flag'];
                 $query[]=$product_details;
                 // $query++;
                 // // $query[$product_details]['flag']=0;

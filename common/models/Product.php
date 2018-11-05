@@ -91,6 +91,7 @@ class Product extends \yii\db\ActiveRecord
                  {
                     $name=$ca->category_name;
                     $query[$i]['category']=$name;
+                    $query[$i]['image']=\Yii::$app->basePath.'/web/uploads/'. $query[$i]['image'];
                     $i=$i+1;
                     // $response = Product::make($row->image, 200);
                     // $response->header('Content-Type', 'image/jpg');
