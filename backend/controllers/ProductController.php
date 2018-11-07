@@ -467,6 +467,7 @@ class ProductController extends RestController
                         'id',
                         'name',
                         'category',
+                        'description',
                         'image',
                         'price',
                         'count',
@@ -527,20 +528,9 @@ class ProductController extends RestController
     }
     public function actionList_emails()
     {   
-        Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-        $array=array();
-     
-        $model=Customer::find()->all(); 
-        foreach($model as $user)
-        {
-            $array[]=$user['email'];
-            $array++;
-        }
-     
-        return[
-            'emails'=>$array
-
-        ];
+        $params = $this->request['search'];
+        $response = Customer::search_email($params);
+        Yii::$app->api->sendSuccessResponse($response['data'], $response['info']);
     }
     public function actionCategory_all()
     {

@@ -78,23 +78,11 @@ class Customer extends \yii\db\ActiveRecord
             ->limit($limit)
             ->offset($offset);
 
-        // if(isset($params['id'])) {
-        //     $query->andFilterWhere(['id' => $params['id']]);
-        // }
-
-        // if(isset($params['created_at'])) {
-        //     $query->andFilterWhere(['created_at' => $params['created_at']]);
-        // }
-        // if(isset($params['updated_at'])) {
-        //     $query->andFilterWhere(['updated_at' => $params['updated_at']]);
-        // }
+      
         if(isset($params['name'])) {
             $query->andFilterWhere(['like', 'name', $params['name']]);
         }
-        // if(isset($params['email'])){
-        //     $query->andFilterWhere(['like', 'email', $params['email']]);
-        // }
-
+    
 
         if(isset($order)){
             $query->orderBy($order);
@@ -112,6 +100,46 @@ class Customer extends \yii\db\ActiveRecord
             'info' => $additional_info
         ];
     }
+    static public function search_email($params)
+    {
 
-   
+        $page = Yii::$app->getRequest()->getQueryParam('page');
+        $limit = Yii::$app->getRequest()->getQueryParam('limit');
+        $order = Yii::$app->getRequest()->getQueryParam('order');
+
+        $search = Yii::$app->getRequest()->getQueryParam('search');
+
+        if(isset($search)){
+            $params=$search;
+        }
+
+        $limit = isset($limit) ? $limit : 10;
+        $page = isset($page) ? $page : 1;
+        $offset = ($page - 1) * $limit;
+
+        $query = Customer::find()
+            ->select([ 'email'])
+            ->asArray(true)
+            ->limit($limit)
+            ->offset($offset);
+
+        if(isset($params['email'])){
+            $query->andFilterWhere(['like', 'email', $params['email']]);
+        }
+
+       if(isset($order)){
+            $query->orderBy($order);
+        }
+
+        $additional_info = [
+            'page' => $page,
+            'size' => $limit,
+            'totalCount' => (int)$query->count()
+        ];
+
+        return [
+            'data' => $query->all(),
+            'info' => $additional_info
+        ];
+    }
 }
