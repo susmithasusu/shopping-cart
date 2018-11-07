@@ -74,8 +74,8 @@ class Product extends \yii\db\ActiveRecord
         $offset = ($page - 1) * $limit;
 
            \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-
-            $query = Product::find()->limit($limit)->all();
+            $que = Product::find()->all();
+            $query = Product::find()->limit($limit)->offset($offset)->all();
             $i=0;?>
            
             <?php
@@ -104,7 +104,7 @@ class Product extends \yii\db\ActiveRecord
         $additional_info = [
             'page' => $page,
             'size' => $limit,
-             'totalCount' =>count($query)
+             'totalCount' =>count($que)
         ];
 
         return [

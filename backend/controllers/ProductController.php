@@ -211,8 +211,8 @@ class ProductController extends RestController
         {
              $name=$row['id'];
         }
-      
-         $model=Product::find()->where(['category'=>$name])->limit($limit)->all();
+         $mod=Product::find()->where(['category'=>$name])->all();
+         $model=Product::find()->where(['category'=>$name])->limit($limit)->offset($offset)->all();
          $i=0;
          foreach($model as $row)
          {
@@ -236,7 +236,7 @@ class ProductController extends RestController
             'products' =>$model,
             'page' => $page,
             'size' => $limit,
-             'totalCount' =>count($model)
+             'totalCount' =>count($mod)
 
         ];
     }
