@@ -62,9 +62,8 @@ class ProductController extends RestController
                     'index' => ['GET', 'POST'],
                     'create','category_adding' => ['POST'],
                     'update' => ['PUT'],
-                    'view' => ['GET']
-                    // 'delete'
-                    // => ['DELETE']
+                    'view' => ['GET'],
+                 'delete','delete_product'=> ['DELETE']
                 ],
             ],
 
@@ -453,6 +452,7 @@ class ProductController extends RestController
             $query=array();
             $new_query=array();
             $orders = Orders::find()->where(['order_id' =>$new[$i]])->all();
+            $result=array();
            
             foreach($orders as $ord)
             {
@@ -460,20 +460,35 @@ class ProductController extends RestController
                 $product_details = Product::find()->where(['id' =>$ord['product_id']])->one();
                 $total=Total::find()->where(['order_id' =>$ord['order_id']])->one();
                 $category=Category::find(['category_name'])->where(['id' =>$product_details['category']])->one();
-                $name=$category['category_name'];
-                $product_details['category']=$ord['flag'];
-                $product_details['count']=$ord['count'];
-                $product_details['image']=Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'.$product_details['image'];
-                // $img = Yii::$app->request->baseUrl.'/web/uploads/';
-
-                $product_details['flag']=$ord['flag'];
-                $query[]=$product_details;
-                // $query++;
-                // // $query[$product_details]['flag']=0;
-                // $product_details->attributes = [['flag'] = $ord['flag']];
-                $query++;
+                // $product_details['image']=Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'.$product_details['image'];
                 
-                $ordering=$query;
+                $results = ArrayHelper::toArray($product_details , [
+                    'common\models\Product' => [
+                        'id',
+                        'name',
+                        'category',
+                        'image',
+                        'price',
+                        'count',
+                       
+                    ],
+                ]);
+                $name=$category['category_name'];
+                $results['count']=$ord['count'];
+                $results['category']= $name;
+                $results['image'] =Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'.$results['image'];
+                $results['flag'] =$ord['flag'];
+                // print_r($results);
+                // exit();
+                $new_query[]=$results;
+                $new_query++;
+               
+                }
+               
+                
+                $ordering= $new_query;
+            
+
                 
                 $array[$i-1]= [
                     'totelAmount'=>$total->total,
@@ -485,9 +500,11 @@ class ProductController extends RestController
                 ];
           
                 $array++;
+            }
+        
              
-            }  
-        }
+              
+        
         return [
             'orders'=>$array
         ];
