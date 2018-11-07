@@ -93,7 +93,6 @@ class Category extends \yii\db\ActiveRecord
             $query->orderBy($order);
         }
 
-
         $additional_info = [
             'page' => $page,
             'size' => $limit,
