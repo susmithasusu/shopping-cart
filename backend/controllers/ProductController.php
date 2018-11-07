@@ -459,9 +459,10 @@ class ProductController extends RestController
          
                 $product_details = Product::find()->where(['id' =>$ord['product_id']])->one();
                 $total=Total::find()->where(['order_id' =>$ord['order_id']])->one();
+                $address=Address::find()->andwhere(['order_id' =>$ord['order_id']])->andwhere(['customer_id' =>$cus_id['id']])->one();
                 $category=Category::find(['category_name'])->where(['id' =>$product_details['category']])->one();
                 // $product_details['image']=Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'.$product_details['image'];
-                
+                $cus_id['address']=$address['address'];
                 $results = ArrayHelper::toArray($product_details , [
                     'common\models\Product' => [
                         'id',
@@ -485,12 +486,7 @@ class ProductController extends RestController
                 $new_query++;
                
                 }
-               
-                
                 $ordering= $new_query;
-            
-
-                
                 $array[$i-1]= [
                     'totelAmount'=>$total->total,
                     'totalQuantity'=>$total->total_quantity,
