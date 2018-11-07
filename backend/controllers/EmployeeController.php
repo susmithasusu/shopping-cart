@@ -24,7 +24,7 @@ class EmployeeController extends RestController
 
            'apiauth' => [
                'class' => Apiauth::className(),
-               'exclude' => ['index'],
+               'exclude' => [],
                'callback'=>[]
            ],
             'access' => [
