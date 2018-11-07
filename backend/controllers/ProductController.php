@@ -29,7 +29,7 @@ class ProductController extends RestController
 
            'apiauth' => [
                'class' => Apiauth::className(),
-               'exclude' => ['view','create','index','delete','products','categories','category_all','list_customer','view_customer','listing_orders','cancel_all','list_emails','listing_address',
+               'exclude' => ['view','create','index','delete','products','categories','category_all','list_customer','view_customer','listing_orders','cancel_all','list_emails','listing_address','create_customer','update_customer',
                'list','category_adding','customer_adding','update','delete','update_product','delete_product','cancel_order','delete_customer','list_category'],
                'callback'=>[]
            ],
@@ -63,7 +63,7 @@ class ProductController extends RestController
                     'create','category_adding' => ['POST'],
                     'update' => ['PUT'],
                     'view' => ['GET'],
-                 'delete','delete_product'=> ['DELETE']
+                 'delete','delete_product','delete_customer'=> ['DELETE']
                 ],
             ],
 
@@ -108,10 +108,10 @@ class ProductController extends RestController
         }
     }
     
-    public function actionUpdate($id)
+    public function actionUpdate()
     {
 
-        $model = $this->findModel1($id);
+        $model = $this->findModel1($this->request['id']);
         $model->attributes = $this->request;
 
         if ($model->save()) {
@@ -121,14 +121,6 @@ class ProductController extends RestController
         }
 
     }
-
-    public function actionView($id)
-    {
-
-        $model = $this->findModel($id);
-        Yii::$app->api->sendSuccessResponse($model->attributes);
-    }
-
     public function actionDelete($id)
     {
 
@@ -144,36 +136,14 @@ class ProductController extends RestController
             Yii::$app->api->sendFailedResponse("Invalid Record requested");
         }
     }
-    public function actionDelete_product($id)
+
+    public function actionView($id)
     {
 
-        $model = $this->findModel2($id);
-        $model->delete();
+        $model = $this->findModel($id);
         Yii::$app->api->sendSuccessResponse($model->attributes);
     }
-    protected function findmodel2($id)
-    {
-        if (($model = Product::findOne($id)) !== null) {
-            return $model;
-        } else {
-            Yii::$app->api->sendFailedResponse("Invalid Record requested");
-        }
-    }
-    public function actionUpdate_product($id)
-    {
-
-        $model = $this->findModel2($id);
-        $model->attributes = $this->request;
-
-        if ($model->save()) {
-            Yii::$app->api->sendSuccessResponse($model->attributes);
-        } else {
-            Yii::$app->api->sendFailedResponse($model->errors);
-        }
-
-    }
-  
-      protected function findModel($id)
+    protected function findModel($id)
     {
        
         if (($model = Product::findOne($id)) !== null) {
@@ -196,7 +166,36 @@ class ProductController extends RestController
             Yii::$app->api->sendFailedResponse("Invalid Record requested");
         }
     }
-    
+    public function actionDelete_product($id)
+    {
+
+        $model = $this->findModel2($id);
+        $model->delete();
+        Yii::$app->api->sendSuccessResponse($model->attributes);
+    }
+    protected function findmodel2($id)
+    {
+        if (($model = Product::findOne($id)) !== null) {
+            return $model;
+        } else {
+            Yii::$app->api->sendFailedResponse("Invalid Record requested");
+        }
+    }
+
+    public function actionUpdate_product()
+    {
+
+        $model = $this->findModel2($this->request['id']);
+        $model->attributes = $this->request;
+
+        if ($model->save()) {
+            Yii::$app->api->sendSuccessResponse($model->attributes);
+        } else {
+            Yii::$app->api->sendFailedResponse($model->errors);
+        }
+
+    }
+  
     public function actionProducts($category)
     {
         
@@ -253,17 +252,34 @@ class ProductController extends RestController
        \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
        return $model1;
      }
-    public function actionOrder()
-    {
-        $model = new Customer();
-        $model1=new Order();
-        $model->attributes = $this->request;
-    }
+   
     public function actionCategory_adding()
     {   
-        print_r($this->request);
-        exit();
+       
         $model = new Category;
+        $model->attributes = $this->request;
+
+        if ($model->save()) {
+            Yii::$app->api->sendSuccessResponse($model->attributes);
+        } else {
+            Yii::$app->api->sendFailedResponse($model->errors);
+        }
+    }
+    public function actionList_category()
+    {
+        $params = $this->request['search'];
+        $response = Category::search($params);
+        Yii::$app->api->sendSuccessResponse($response['data'], $response['info']);
+    }
+    public function actionView_category($id)
+    {
+
+        $model = $this->findModel1($id);
+        Yii::$app->api->sendSuccessResponse($model->attributes);
+    }
+    public function actionCreate_customer()
+    {   
+        $model = new Customer;
         $model->attributes = $this->request;
 
         if ($model->save()) {
@@ -277,6 +293,24 @@ class ProductController extends RestController
         $params = $this->request['search'];
         $response = Customer::search($params);
         Yii::$app->api->sendSuccessResponse($response['data'], $response['info']);
+    }
+    public function actionView_customer($id)
+    {
+        $model = $this->findModel3($id);
+        Yii::$app->api->sendSuccessResponse($model->attributes);
+    }
+    public function actionUpdate_customer()
+    {
+        
+        $model = $this->findModel3($this->request['id']);
+        $model->attributes = $this->request;
+
+        if ($model->save()) {
+            Yii::$app->api->sendSuccessResponse($model->attributes);
+        } else {
+            Yii::$app->api->sendFailedResponse($model->errors);
+        }
+
     }
     public function actionDelete_customer($id)
     {
@@ -292,17 +326,7 @@ class ProductController extends RestController
             Yii::$app->api->sendFailedResponse("Invalid Record requested");
         }
     }
-    public function actionView_customer($id)
-    {
-        $model = $this->findModel3($id);
-        Yii::$app->api->sendSuccessResponse($model->attributes);
-    }
-    public function actionList_category()
-    {
-        $params = $this->request['search'];
-        $response = Category::search($params);
-        Yii::$app->api->sendSuccessResponse($response['data'], $response['info']);
-    }
+   
     public function actionCustomer_adding()
     {
         $model = new Customer;
@@ -412,14 +436,6 @@ class ProductController extends RestController
         }
     }
      
-    public function actionCancel_order($order_id,$product_id)
-    {
-        $model=Orders::find()->andwhere(['order_id' =>$order_id])->andwhere([ 'product_id'=>$product_id])->one(); 
-        $model->flag = 1;
-        $model->save();
-        Yii::$app->api->sendSuccessResponse($model->attributes);
-    }
-
     public function actionListing_orders($email) {
         \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
         $ordering=array();
@@ -499,14 +515,18 @@ class ProductController extends RestController
                 $array++;
             }
         
-             
-              
-        
         return [
             'orders'=>$array
         ];
                 
         Yii::$app->api->sendSuccessResponse($response['DeliveryAddress'],$response['productsCart']);
+    }
+    public function actionCancel_order($order_id,$product_id)
+    {
+        $model=Orders::find()->andwhere(['order_id' =>$order_id])->andwhere([ 'product_id'=>$product_id])->one(); 
+        $model->flag = 1;
+        $model->save();
+        Yii::$app->api->sendSuccessResponse($model->attributes);
     }
     public function actionCancel_all($order_id)
     {
@@ -528,28 +548,7 @@ class ProductController extends RestController
         $response = Customer::search_email($params);
         Yii::$app->api->sendSuccessResponse($response['data'], $response['info']);
     }
-    // public function actionCategory_all()
-    // {
-    //     $array=array();
-    //     $params = Yii::$app->request->post();
-    //     for($i=0;$i<count($params);$i++)
-    //     {   
-    //         $name=Category::find()->where(['Category_name' =>$params[$i]])->one(); 
-    //         $model=Product::find()->where(['Category' =>$name->id])->all(); 
-    //         foreach($model as $product)
-    //         {
-    //         //     print_r($product);
-    //         $new=Product::find()->where(['id' =>$product->id])->one(); 
-    //         $new['category']=$params[$i];
-    //         $array[]=$new;
-    //         $array++;
-    //         }
-           
-    //     }
-    //     return[
-    //         'data'=>$array
-    //     ];
-    // }
+
     public function actionListing_address($email)
     {
 
@@ -567,6 +566,7 @@ class ProductController extends RestController
                 'data'=>$array
             ];
     }
+   
 }
     
     

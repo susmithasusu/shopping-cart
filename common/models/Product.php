@@ -63,25 +63,21 @@ class Product extends \yii\db\ActiveRecord
         $page = Yii::$app->getRequest()->getQueryParam('page');
         $limit = Yii::$app->getRequest()->getQueryParam('limit');
         $order = Yii::$app->getRequest()->getQueryParam('order');
-
         $search = Yii::$app->getRequest()->getQueryParam('search');
 
         if(isset($search)){
             $params=$search;
         }
        
-
         $limit = isset($limit) ? $limit : 10;
         $page = isset($page) ? $page : 1;
         $offset = ($page - 1) * $limit;
 
            \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
 
-        
             $query = Product::find()->limit($limit)->all();
             $i=0;?>
            
-          
             <?php
            
             foreach($query as $row)
@@ -116,7 +112,4 @@ class Product extends \yii\db\ActiveRecord
             'info' => $additional_info
         ];
     }
-    
-
-  
 }
