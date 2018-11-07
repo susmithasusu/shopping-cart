@@ -29,7 +29,7 @@ class ProductController extends RestController
 
            'apiauth' => [
                'class' => Apiauth::className(),
-               'exclude' => ['view','create','index','delete','products','categories','category_all','list_customer','view_customer','listing_orders','cancel_all','list_emails',
+               'exclude' => ['view','create','index','delete','products','categories','category_all','list_customer','view_customer','listing_orders','cancel_all','list_emails','listing_address',
                'list','category_adding','customer_adding','update','delete','update_product','delete_product','cancel_order','delete_customer','list_category'],
                'callback'=>[]
            ],
@@ -528,27 +528,44 @@ class ProductController extends RestController
         $response = Customer::search_email($params);
         Yii::$app->api->sendSuccessResponse($response['data'], $response['info']);
     }
-    public function actionCategory_all()
-    {
-        $array=array();
-        $params = Yii::$app->request->post();
-        for($i=0;$i<count($params);$i++)
-        {   
-            $name=Category::find()->where(['Category_name' =>$params[$i]])->one(); 
-            $model=Product::find()->where(['Category' =>$name->id])->all(); 
-            foreach($model as $product)
-            {
-            //     print_r($product);
-            $new=Product::find()->where(['id' =>$product->id])->one(); 
-            $new['category']=$params[$i];
-            $array[]=$new;
-            $array++;
-            }
+    // public function actionCategory_all()
+    // {
+    //     $array=array();
+    //     $params = Yii::$app->request->post();
+    //     for($i=0;$i<count($params);$i++)
+    //     {   
+    //         $name=Category::find()->where(['Category_name' =>$params[$i]])->one(); 
+    //         $model=Product::find()->where(['Category' =>$name->id])->all(); 
+    //         foreach($model as $product)
+    //         {
+    //         //     print_r($product);
+    //         $new=Product::find()->where(['id' =>$product->id])->one(); 
+    //         $new['category']=$params[$i];
+    //         $array[]=$new;
+    //         $array++;
+    //         }
            
-        }
-        return[
-            'data'=>$array
-        ];
+    //     }
+    //     return[
+    //         'data'=>$array
+    //     ];
+    // }
+    public function actionListing_address($email)
+    {
+
+        $array=array();
+        $new_array=array();
+        $cus_id=Customer::find()->where(['email' =>$email])->one();
+      
+        $address=Address::find()->where(['customer_id' =>$cus_id['id']])->all();
+        foreach($address as $add)
+                {
+                    $array[]=$add['address'];
+                    $array++;
+                }
+            return[
+                'data'=>$array
+            ];
     }
 }
     
