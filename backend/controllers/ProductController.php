@@ -89,7 +89,7 @@ class ProductController extends RestController
         $imgName='img_'.$this->request['name'] .'.'.'png';
         $img=\Yii::$app->basePath.'/web/uploads/'.$imgName;
         file_put_contents(\Yii::$app->basePath.'/web/uploads/'.$imgName, $data);
-        exec('sudo chmod ' .Yii::$app->basePath.$img.'777');
+        exec('sudo chmod ' .Yii::$app->basePath.'/web/uploads/'.$imgName.'777');
 
         $category=Category::find(['id'])->where(['category_name' =>$this->request['category']])->one();
         $cat_id= $category['id'];

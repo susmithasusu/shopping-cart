@@ -65,14 +65,9 @@ class Employee extends \yii\db\ActiveRecord
             $params=$search;
         }
 
-
-
         $limit = isset($limit) ? $limit : 10;
         $page = isset($page) ? $page : 1;
-
-
         $offset = ($page - 1) * $limit;
-
         $query = Employee::find()
             ->select(['id', 'name', 'email', 'created_at', 'updated_at'])
             ->asArray(true)
