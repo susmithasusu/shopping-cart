@@ -103,7 +103,7 @@ class ProductController extends RestController
         // $model['image']=\Yii::$app->basePath.'/web/uploads/'.$imgName;
         
         if ($model->save()) {
-          
+            $model->image=$img;
             Yii::$app->api->sendSuccessResponse($model->attributes);
         } else {
             Yii::$app->api->sendFailedResponse($model->errors);
@@ -194,7 +194,7 @@ class ProductController extends RestController
         $image = str_replace(' ', '+', $image);
         $data = base64_decode($image);
         $imgName='img_'.$this->request['name'] .'.'.'png';
-        $img=\Yii::$app->basePath.'/web/uploads/'.$imgName;
+        $img=\Yii::$app->basePath.'/web/uploads/'.$model['image'];
         file_put_contents(\Yii::$app->basePath.'/web/uploads/'.$imgName, $data);
         exec('sudo chmod ' .Yii::$app->basePath.'/web/uploads/'.$imgName.'777');
 
@@ -202,13 +202,14 @@ class ProductController extends RestController
         $cat_id= $category['id'];
         $model->category =$cat_id;
         $model->name=$this->request['name'];
-        // $model->image=$imgName;
+        $model->image=$imgName;
         $model->description=$this->request['description'];
         $model->price=$this->request['price'];
         $model->count=$this->request['count'];
         $model->save();
 
         if ($model->save()) {
+            $model->image=$img;
             Yii::$app->api->sendSuccessResponse($model->attributes);
         } else {
             Yii::$app->api->sendFailedResponse($model->errors);
