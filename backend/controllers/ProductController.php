@@ -195,7 +195,7 @@ class ProductController extends RestController
         $image = str_replace(' ', '+', $image);
         $data = base64_decode($image);
         $imgName='img_'.$this->request['name'] .'.'.'png';
-        $new_img=Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'.$model['image'];
+        $new_img=Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'.$this->request['image'];
         file_put_contents(\Yii::$app->basePath.'/web/uploads/'.$imgName, $data);
         exec('sudo chmod ' .Yii::$app->basePath.'/web/uploads/'.$imgName.'777');
 
