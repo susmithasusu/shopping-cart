@@ -474,7 +474,6 @@ class ProductController extends RestController
                         $model2->order_id=$mod;
                         $model2->customer_id=$model->id;
                         $model2->product_id=$cus_id->id;
-                        $model2->delivery_at=$time[0];
                         $model2->count=$params['productsCart'][$i]['count'];
                         $model2->flag=0;
                         $model2->save();
@@ -489,6 +488,7 @@ class ProductController extends RestController
                     $model1->user_name=$model->id;
                     $model1->delivery_address=$params['DeliveryAddress']['address'];
                     $model1->flag=0;
+                    $model1->delivery_at=$time[0];
                     $model1->total=$params['totelAmount'];
                     $model1->total_quantity=$i;
                     $model1->save();
