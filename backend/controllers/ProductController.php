@@ -30,7 +30,7 @@ class ProductController extends RestController
            'apiauth' => [
                'class' => Apiauth::className(),
                'exclude' => ['view','create','index','delete','products','categories','category_all','list_customer','view_customer','listing_orders','cancel_all','list_emails','listing_address','create_customer','update_customer','view_category',
-               'list','category_adding','customer_adding','update','delete','update_product','delete_product','cancel_order','delete_customer','list_category'],
+               'list','category_adding','customer_adding','update','delete','update_product','delete_product','cancel_order','delete_customer','list_category','list_allorders'],
                'callback'=>[]
            ],
             'access' => [
@@ -187,7 +187,8 @@ class ProductController extends RestController
 
     public function actionUpdate_product()
     {
-
+        if($this->request['image']!=" ")
+        {
         $model = $this->findModel2($this->request['id']);
         $content= base64_decode($this->request['image']);
         $image = $this->request['image']; 
@@ -208,12 +209,32 @@ class ProductController extends RestController
         $model->price=$this->request['price'];
         $model->count=$this->request['count'];
         $model->save();
-
         if ($model->save()) {
             $model->image=$new_img;
             Yii::$app->api->sendSuccessResponse($model->attributes);
         } else {
             Yii::$app->api->sendFailedResponse($model->errors);
+        }
+        }
+        else{
+            $model = $this->findModel2($this->request['id']);
+            
+            $new_img=Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'.$model['image'];
+            $category=Category::find(['id'])->where(['category_name' =>$this->request['category']])->one();
+            $cat_id= $category['id'];
+            $model->category =$cat_id;
+            $model->name=$this->request['name'];
+            $model->description=$this->request['description'];
+            $model->price=$this->request['price'];
+            $model->count=$this->request['count'];
+            $model->save();
+            if ($model->save()) {
+                $model->image=$new_img;
+                Yii::$app->api->sendSuccessResponse($model->attributes);
+            } else {
+                Yii::$app->api->sendFailedResponse($model->errors);
+            }
+
         }
 
     }
@@ -357,7 +378,20 @@ class ProductController extends RestController
        
         $params = Yii::$app->request->post();
         $cn=count($params['productsCart']);
-        
+        $dt = new \DateTime('now +10 day');
+        $i=0;
+       
+            foreach($dt as $tim)
+            {
+                if($i==0)
+                {
+                
+                $time=$tim;
+                $i=$i+1;
+                }
+            }
+            $time=explode(' ',$time);
+          
         $email=Customer::find()->where(['email' =>$params['DeliveryAddress']['email']])->one(); 
         $max = Orders::find()->orderBy("order_id DESC")->one();
         $order=$max['order_id']+1;
@@ -397,6 +431,10 @@ class ProductController extends RestController
             
             $model1->customer_id=$email->id;
             $model1->order_id=$order;
+            $model1->user_name=$email->email;
+            $model1->delivery_address=$params['DeliveryAddress']['address'];
+            $model1->flag=0;
+            $model1->delivery_at=$time[0];
             $model1->total=$params['totelAmount'];
             $model1->total_quantity=$i;
             $model1->save();
@@ -436,12 +474,21 @@ class ProductController extends RestController
                         $model2->order_id=$mod;
                         $model2->customer_id=$model->id;
                         $model2->product_id=$cus_id->id;
+                        $model2->delivery_at=$time[0];
                         $model2->count=$params['productsCart'][$i]['count'];
                         $model2->flag=0;
                         $model2->save();
                     }
+                    // $model1->customer_id=$model->id;
+                    // $model1->order_id=$order;
+                    // $model1->total=$params['totelAmount'];
+                    // $model1->total_quantity=$i;
+                    // $model1->save();
                     $model1->customer_id=$model->id;
                     $model1->order_id=$order;
+                    $model1->user_name=$model->id;
+                    $model1->delivery_address=$params['DeliveryAddress']['address'];
+                    $model1->flag=0;
                     $model1->total=$params['totelAmount'];
                     $model1->total_quantity=$i;
                     $model1->save();
@@ -559,6 +606,9 @@ class ProductController extends RestController
         $del->flag = 1;
         $del->save();
         }
+        $model=Total::find()->where(['order_id' =>$order_id])->one();
+        $model->flag = 1;
+        $model->save();
         return [
             'data'=>'successfully canceled'
         ];
@@ -568,6 +618,12 @@ class ProductController extends RestController
     {   
         $params = $this->request['search'];
         $response = Customer::search_email($params);
+        Yii::$app->api->sendSuccessResponse($response['data'], $response['info']);
+    }
+    public function actionList_allorders()
+    {   
+        $params = $this->request['search'];
+        $response = Total::search($params);
         Yii::$app->api->sendSuccessResponse($response['data'], $response['info']);
     }
 

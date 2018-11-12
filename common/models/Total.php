@@ -50,4 +50,87 @@ class Total extends \yii\db\ActiveRecord
             
         ];
     }
+    static public function search($params)
+    {
+
+        $page = Yii::$app->getRequest()->getQueryParam('page');
+        $limit = Yii::$app->getRequest()->getQueryParam('limit');
+        $order = Yii::$app->getRequest()->getQueryParam('order');
+
+        $search = Yii::$app->getRequest()->getQueryParam('search');
+
+        if(isset($search)){
+            $params=$search;
+        }
+
+        $limit = isset($limit) ? $limit : 10;
+        $page = isset($page) ? $page : 1;
+        $offset = ($page - 1) * $limit;
+        $query = Total::find()
+            ->select(['id', 'order_id','user_name', 'delivery_address','total','created_at','delivery_at','flag','total_quantity'])
+            ->asArray(true)
+            ->limit($limit)
+            ->offset($offset);
+
+        if(isset($params['id'])) {
+            $query->andFilterWhere(['id' => $params['id']]);
+        }
+
+        if(isset($params['created_at'])) {
+            $query->andFilterWhere(['created_at' => $params['created_at']]);
+        }
+        if(isset($params['user_name'])) {
+            $query->andFilterWhere(['user_name' => $params['user_name']]);
+        }
+        if(isset($params['order_id'])) {
+            $query->andFilterWhere(['like', 'order_id', $params['order_id']]);
+        }
+        if(isset($params['delivery_address'])){
+            $query->andFilterWhere(['like', 'delivery_address', $params['delivery_address']]);
+        }
+        if(isset($params['flag'])){
+            $query->andFilterWhere(['like', 'flag', $params['flag']]);
+        }
+        if(isset($params['delivery_at'])){
+            $query->andFilterWhere(['like', 'delivery_at', $params['delivery_at']]);
+        }
+
+
+        if(isset($order)){
+            $query->orderBy($order);
+        }
+
+
+        $additional_info = [
+            'page' => $page,
+            'size' => $limit,
+            'totalCount' => (int)$query->count()
+        ];
+
+        return [
+            'data' => $query->all(),
+            'info' => $additional_info
+        ];
+    }
+
+    public function beforeSave($insert)
+    {
+
+        if (parent::beforeSave($insert)) {
+
+            if ($this->isNewRecord) {
+                $this->created_at = date("Y-m-d H:i:s", time());
+                $this->updated_at = date("Y-m-d H:i:s", time());
+
+            } else {
+
+                $this->updated_at = date("Y-m-d H:i:s", time());
+            }
+            return true;
+        } else {
+            return false;
+        }
+
+
+    }
 }
