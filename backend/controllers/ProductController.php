@@ -29,7 +29,7 @@ class ProductController extends RestController
 
            'apiauth' => [
                'class' => Apiauth::className(),
-               'exclude' => ['view','create','index','delete','products','categories','category_all','list_customer','view_customer','listing_orders','cancel_all','list_emails','listing_address','create_customer','update_customer','view_category',
+               'exclude' => ['view','create','index','delete','products','categories','category_all','list_customer','view_customer','listing_orders','cancel_all','list_emails','listing_address','create_customer','update_customer','view_category','list_oneorder',
                'list','category_adding','customer_adding','update','delete','update_product','delete_product','cancel_order','delete_customer','list_category','list_allorders'],
                'callback'=>[]
            ],
@@ -189,6 +189,7 @@ class ProductController extends RestController
     {
         if($this->request['image']!=" ")
         {
+        unlink(Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'.$model['image']);
         $model = $this->findModel2($this->request['id']);
         $content= base64_decode($this->request['image']);
         $image = $this->request['image']; 
@@ -217,6 +218,7 @@ class ProductController extends RestController
         }
         }
         else{
+           
             $model = $this->findModel2($this->request['id']);
             
             $new_img=Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'.$model['image'];
@@ -626,6 +628,50 @@ class ProductController extends RestController
         $response = Total::search($params);
         Yii::$app->api->sendSuccessResponse($response['data'], $response['info']);
     }
+    public function actionList_oneorder($id)
+    {   
+        $orders = Orders::find()->where(['order_id' =>$id])->all();
+        $result=array();
+           
+            foreach($orders as $ord)
+            {
+         
+                $product_details = Product::find()->where(['id' =>$ord['product_id']])->one();
+                $total=Total::find()->where(['order_id' =>$ord['order_id']])->one();
+                $address=Address::find()->andwhere(['order_id' =>$ord['order_id']])->andwhere(['customer_id' =>$ord['customer_id']])->one();
+                $category=Category::find(['category_name'])->where(['id' =>$product_details['category']])->one();
+             
+                $name=$category['category_name'];
+                $results = ArrayHelper::toArray($product_details , [
+                    'common\models\Product' => [
+                        'id',
+                        'name',
+                        'category',
+                        'description',
+                        'price',
+                        'count',
+                       
+                    ],
+                ]);
+                $name=$category['category_name'];
+                $results['count']=$ord['count'];
+                $results['category']= $name;
+                $results['flag'] =$ord['flag'];
+                $new_query[]=$results;
+                $new_query++;
+               
+            }
+              
+                return [
+                    'products'=> $new_query
+                ];
+                        
+                Yii::$app->api->sendSuccessResponse($response['DeliveryAddress'],$response['productsCart']);
+          
+                // $array++;
+     }
+    
+   
 
     public function actionListing_address($email)
     {
