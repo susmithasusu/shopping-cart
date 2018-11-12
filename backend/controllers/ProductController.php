@@ -111,10 +111,10 @@ class ProductController extends RestController
         }
     }
     
-    public function actionUpdate()
+    public function actionUpdate($id)
     {
 
-        $model = $this->findModel1($this->request['id']);
+        $model = $this->findModel1($id);
         $model->attributes = $this->request;
 
         if ($model->save()) {
@@ -185,12 +185,13 @@ class ProductController extends RestController
         }
     }
 
-    public function actionUpdate_product()
+    public function actionUpdate_product($id)
     {
         if($this->request['image']!=" ")
         {
-        unlink(Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'.$model['image']);
-        $model = $this->findModel2($this->request['id']);
+        
+        $model = $this->findModel2($id);
+        // unlink(\Yii::$app->basePath.'/web/uploads/'.$model['image']);
         $content= base64_decode($this->request['image']);
         $image = $this->request['image']; 
         $image = str_replace('data:image/png;base64,', '', $image);
@@ -200,9 +201,10 @@ class ProductController extends RestController
         $new_img=Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'. $imgName;
         file_put_contents(\Yii::$app->basePath.'/web/uploads/'.$imgName, $data);
         exec('sudo chmod ' .Yii::$app->basePath.'/web/uploads/'.$imgName.'777');
-
+       
         $category=Category::find(['id'])->where(['category_name' =>$this->request['category']])->one();
         $cat_id= $category['id'];
+    
         $model->category =$cat_id;
         $model->name=$this->request['name'];
         $model->image=$imgName;
@@ -344,10 +346,10 @@ class ProductController extends RestController
         $model = $this->findModel3($id);
         Yii::$app->api->sendSuccessResponse($model->attributes);
     }
-    public function actionUpdate_customer()
+    public function actionUpdate_customer($id)
     {
         
-        $model = $this->findModel3($this->request['id']);
+        $model = $this->findModel3($id);
         $model->attributes = $this->request;
 
         if ($model->save()) {
