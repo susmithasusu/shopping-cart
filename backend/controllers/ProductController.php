@@ -159,9 +159,7 @@ class ProductController extends RestController
                     $name=$ca['category_name'];
                     $model['category']=$name;
                     $model['image']=Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'. $model['image'];
-                    
-                
-                }
+                 }
                 
             }
             return $model;
@@ -204,7 +202,6 @@ class ProductController extends RestController
        
         $category=Category::find(['id'])->where(['category_name' =>$this->request['category']])->one();
         $cat_id= $category['id'];
-    
         $model->category =$cat_id;
         $model->name=$this->request['name'];
         $model->image=$imgName;
@@ -630,9 +627,9 @@ class ProductController extends RestController
         $response = Total::search($params);
         Yii::$app->api->sendSuccessResponse($response['data'], $response['info']);
     }
-    public function actionList_oneorder($id)
+    public function actionList_oneorder($order_id)
     {   
-        $orders = Orders::find()->where(['order_id' =>$id])->all();
+        $orders = Orders::find()->where(['order_id' =>$order_id])->all();
         $result=array();
            
             foreach($orders as $ord)
