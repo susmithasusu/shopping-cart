@@ -29,7 +29,7 @@ class ProductController extends RestController
 
            'apiauth' => [
                'class' => Apiauth::className(),
-               'exclude' => ['view','create','index','delete','products','categories','category_all','list_customer','view_customer','listing_orders','cancel_all','list_emails','listing_address','create_customer','update_customer','view_category','list_oneorder',
+               'exclude' => ['view','create','index','delete','products','categories','category_all','list_customer','view_customer','listing_orders','cancel_all','list_emails','listing_address','create_customer','update_customer','view_category','list_oneorder','block_user',
                'list','category_adding','customer_adding','update','delete','update_product','delete_product','cancel_order','delete_customer','list_category','list_allorders'],
                'callback'=>[]
            ],
@@ -457,6 +457,7 @@ class ProductController extends RestController
                 $model->email= $params['DeliveryAddress']['email'];
                 $model->name = $params['DeliveryAddress']['name'];
                 $model->phone = $params['DeliveryAddress']['phone'];
+                $model->flag=0;
                 $model->save();
                
                 if ($model->save()) {
@@ -504,6 +505,17 @@ class ProductController extends RestController
                 }
             }
         }
+    }
+    public function actionBlock_user($id)
+    {
+        $model=Customer::find()->where(['id' =>$id])->one();
+        $model->flag = 1;
+        $model->save();
+        return [
+            'data'=>'successfully blocked'
+        ];
+
+
     }
      
     public function actionListing_orders($email) {
@@ -629,8 +641,23 @@ class ProductController extends RestController
     }
     public function actionList_oneorder($order_id)
     {   
-        $orders = Orders::find()->where(['order_id' =>$order_id])->all();
+        
         $result=array();
+        $page = Yii::$app->getRequest()->getQueryParam('page');
+        $limit = Yii::$app->getRequest()->getQueryParam('limit');
+        $order = Yii::$app->getRequest()->getQueryParam('order');
+        $search = Yii::$app->getRequest()->getQueryParam('search');
+
+        if(isset($search)){
+            $params=$search;
+        }
+       
+        $limit = isset($limit) ? $limit : 10;
+        $page = isset($page) ? $page : 1;
+        $offset = ($page - 1) * $limit;
+        $orders1 = Orders::find()->where(['order_id' =>$order_id])->limit($limit)
+        ->offset($offset);
+        $orders=$orders1->all();
            
             foreach($orders as $ord)
             {
@@ -661,8 +688,16 @@ class ProductController extends RestController
                
             }
               
+               
+                $additional_info = [
+                    'page' => $page,
+                    'size' => $limit,
+                    'totalCount' => (int)$orders1->count()
+                ];
+        
                 return [
-                    'products'=> $new_query
+                    'products'=> $new_query,
+                    'info' => $additional_info
                 ];
                         
                 Yii::$app->api->sendSuccessResponse($response['DeliveryAddress'],$response['productsCart']);

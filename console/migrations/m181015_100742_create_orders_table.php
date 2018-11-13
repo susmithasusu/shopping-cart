@@ -17,7 +17,8 @@ class m181015_100742_create_orders_table extends Migration
             'order_id'=>$this->integer(),
             'customer_id'=>$this->integer(),
             'product_id'=>$this->integer(),
-            'count'=>$this->integer()
+            'count'=>$this->integer(),
+            'flag'=>$this->boolean()
            
         ]);
     }

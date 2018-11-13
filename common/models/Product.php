@@ -72,43 +72,43 @@ class Product extends \yii\db\ActiveRecord
         $limit = isset($limit) ? $limit : 10;
         $page = isset($page) ? $page : 1;
         $offset = ($page - 1) * $limit;
-
-           \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
-            $que = Product::find()->all();
-            $query = Product::find()->limit($limit)->offset($offset)->all();
-            $i=0;?>
-           
-            <?php
-           
-            foreach($query as $row)
+        $query = Product::find()
+            ->select(['id', 'name', 'category', 'price', 'description','image'])
+            ->asArray(true)
+            ->limit($limit)
+            ->offset($offset);
+            $i=0;
+            $query1=$query->all();
+          
+            foreach($query1 as $row)
             {
-                 $category=Category::find(['category_name'])->where(['id' =>$row->category])->all();
+                 $category=Category::find(['category_name'])->where(['id' =>$row['category']])->all();
                  foreach($category as $ca)
                  {
                     $name=$ca->category_name;
-                    $query[$i]['category']=$name;
-                    $query[$i]['image']=Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'.$query[$i]['image'];
+                    $query1[$i]['category']=$name;
+                    $query1[$i]['image']=Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'.$query1[$i]['image'];
                     $i=$i+1;
-                    // $response = Product::make($row->image, 200);
-                    // $response->header('Content-Type', 'image/jpg');
-                    // return $response;
-                
+               
                  }
             }
+            $data = (object) $query1;
+            // print_r($data);
+            // exit();
             if(isset($params['name'])) {
-            $query->andFilterWhere(['name' => $params['name']]);
+                $data->andFilterWhere(['name' => $params['name']]);
             }
-           if(isset($order)){ 
-            $query->orderBy($order);
-           }
+        //    if(isset($order)){ 
+        //     $data->orderBy($order);
+        //    }
         $additional_info = [
             'page' => $page,
             'size' => $limit,
-             'totalCount' =>count($que)
+             'totalCount' =>(int)$query->count()
         ];
 
         return [
-            'data' => $query,
+            'data' =>  $query1,
             'info' => $additional_info
         ];
     }
