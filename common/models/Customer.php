@@ -73,7 +73,7 @@ class Customer extends \yii\db\ActiveRecord
         $offset = ($page - 1) * $limit;
 
         $query =Customer::find()
-            ->select(['id', 'address','name', 'email', 'phone'])
+            ->select(['id', 'address','name', 'email', 'phone','flag'])
             ->asArray(true)
             ->limit($limit)
             ->offset($offset);

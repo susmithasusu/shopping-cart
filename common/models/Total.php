@@ -67,7 +67,7 @@ class Total extends \yii\db\ActiveRecord
         $page = isset($page) ? $page : 1;
         $offset = ($page - 1) * $limit;
         $query = Total::find()
-            ->select(['id', 'order_id','user_name', 'delivery_address','total','created_at','delivery_at','flag','total_quantity'])
+            ->select(['id', 'order_id','email', 'delivery_address','total','created_at','delivery_at','flag','total_quantity'])
             ->asArray(true)
             ->limit($limit)
             ->offset($offset);
@@ -79,8 +79,8 @@ class Total extends \yii\db\ActiveRecord
         if(isset($params['created_at'])) {
             $query->andFilterWhere(['created_at' => $params['created_at']]);
         }
-        if(isset($params['user_name'])) {
-            $query->andFilterWhere(['user_name' => $params['user_name']]);
+        if(isset($params['email'])) {
+            $query->andFilterWhere(['email' => $params['email']]);
         }
         if(isset($params['order_id'])) {
             $query->andFilterWhere(['like', 'order_id', $params['order_id']]);

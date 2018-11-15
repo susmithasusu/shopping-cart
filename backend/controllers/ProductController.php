@@ -324,8 +324,12 @@ class ProductController extends RestController
     public function actionCreate_customer()
     {   
         $model = new Customer;
-        $model->attributes = $this->request;
-
+        $model->address = $this->request['address'];
+        $model->email = $this->request['email'];
+        $model->name = $this->request['name'];
+        $model->phone = $this->request['phone'];
+        $model->flag = 0;
+        $model->save();
         if ($model->save()) {
             Yii::$app->api->sendSuccessResponse($model->attributes);
         } else {
@@ -432,7 +436,7 @@ class ProductController extends RestController
             
             $model1->customer_id=$email->id;
             $model1->order_id=$order;
-            $model1->user_name=$email->email;
+            $model1->email=$email->email;
             $model1->delivery_address=$params['DeliveryAddress']['address'];
             $model1->flag=0;
             $model1->delivery_at=$time[0];
@@ -442,6 +446,7 @@ class ProductController extends RestController
            
              return [
                 'data' =>'successfully placed',
+                'delivery-date'=>$time[0]
         
             ];
         Yii::$app->api->sendSuccessResponse($response['data']); 
@@ -487,7 +492,7 @@ class ProductController extends RestController
                     // $model1->save();
                     $model1->customer_id=$model->id;
                     $model1->order_id=$order;
-                    $model1->user_name=$model->id;
+                    $model1->email=$model->email;
                     $model1->delivery_address=$params['DeliveryAddress']['address'];
                     $model1->flag=0;
                     $model1->delivery_at=$time[0];
@@ -496,6 +501,7 @@ class ProductController extends RestController
                     $model1->save();
                     return [
                         'data' =>'successfully placed',
+                        'delivery-date'=>$time[0]
                 
                     ];
                     Yii::$app->api->sendSuccessResponse($response['data']); 
@@ -511,9 +517,7 @@ class ProductController extends RestController
         $model=Customer::find()->where(['id' =>$id])->one();
         $model->flag = 1;
         $model->save();
-        return [
-            'data'=>'successfully blocked'
-        ];
+        Yii::$app->api->sendSuccessResponse($model->attributes);
 
 
     }
@@ -525,43 +529,62 @@ class ProductController extends RestController
         $cus_id=Customer::find()->where(['email' =>$email])->one();
         $all_orders='';
         $products=array();
+        $check = Orders::find()->where(['customer_id' =>$cus_id['id']])->orderBy("order_id DESC")->one();
         $max = Orders::find()->where(['customer_id' =>$cus_id['id']])->orderBy("order_id DESC")->all();
         
-        foreach($max as $ma){
-            $all_orders=$all_orders.'$'.$ma['order_id'];
-        } 
-        
-        $arr = explode("$", $all_orders);
-        $new=array();
-        for($i=0;$i<count($arr);$i++){
-            
-            if (in_array($arr[$i],$new)){
-                
-            }
-            else{
-                $new[]=$arr[$i];
-                $new++; 
-            }
-        }
-        
-        $array=array();
-        for($i=1;$i<count($new);$i++)
+        if( $cus_id=="")
         {
-            $query=array();
-            $new_query=array();
-            $orders = Orders::find()->where(['order_id' =>$new[$i]])->all();
-            $result=array();
-           
-            foreach($orders as $ord)
+            return [
+                'data' =>'you have no orders yet',
+               
+            ];
+
+        }
+        elseif($check=="")
+        {
+            return [
+                'data' =>'you have no orders yet',
+               
+            ];
+
+        }
+        else{
+            foreach($max as $ma){
+                $all_orders=$all_orders.'$'.$ma['order_id'];
+            } 
+        
+            $arr = explode("$", $all_orders);
+            $new=array();
+            for($i=0;$i<count($arr);$i++){
+            
+                if (in_array($arr[$i],$new)){
+                
+                }
+                else{
+                    $new[]=$arr[$i];
+                    $new++; 
+                }
+            }
+        
+            $array=array();
+            for($i=1;$i<count($new);$i++)
             {
+                $query=array();
+                $new_query=array();
+                $orders = Orders::find()->where(['order_id' =>$new[$i]])->all();
+                $result=array();
+           
+                foreach($orders as $ord)
+                {
          
-                $product_details = Product::find()->where(['id' =>$ord['product_id']])->one();
-                $total=Total::find()->where(['order_id' =>$ord['order_id']])->one();
-                $address=Address::find()->andwhere(['order_id' =>$ord['order_id']])->andwhere(['customer_id' =>$cus_id['id']])->one();
-                $category=Category::find(['category_name'])->where(['id' =>$product_details['category']])->one();
-                // $product_details['image']=Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'.$product_details['image'];
-                $cus_id['address']=$address['address'];
-                $results = ArrayHelper::toArray($product_details , [
+                    $product_details = Product::find()->where(['id' =>$ord['product_id']])->one();
+                    $total=Total::find()->where(['order_id' =>$ord['order_id']])->one();
+                    $address=Total::find()->andwhere(['order_id' =>$ord['order_id']])->andwhere(['customer_id' =>$cus_id['id']])->one();
+                    $details=Customer::find()->where(['email' =>$email])->one();
+                    $category=Category::find(['category_name'])->where(['id' =>$product_details['category']])->one();
+                     // $product_details['image']=Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'.$product_details['image'];
+                    $details['address']=$address['delivery_address'];
+                    $results = ArrayHelper::toArray($product_details , [
                     'common\models\Product' => [
                         'id',
                         'name',
@@ -571,28 +594,28 @@ class ProductController extends RestController
                         'price',
                         'count',
                        
-                    ],
-                ]);
-                $name=$category['category_name'];
-                $results['count']=$ord['count'];
-                $results['category']= $name;
-                $results['image'] =Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'.$results['image'];
-                $results['flag'] =$ord['flag'];
-                // print_r($results);
-                // exit();
-                $new_query[]=$results;
-                $new_query++;
+                        ],
+                    ]);
+                    $name=$category['category_name'];
+                    $results['count']=$ord['count'];
+                    $results['category']= $name;
+                    $results['image'] =Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'.$results['image'];
+                    $results['flag'] =$ord['flag'];
+                    // print_r($results);
+                    // exit();
+                    $new_query[]=$results;
+                    $new_query++;
                
                 }
-                $ordering= $new_query;
-                $array[$i-1]= [
-                    'totelAmount'=>$total->total,
-                    'totalQuantity'=>$total->total_quantity,
-                    'msg'=>'expected delivery date 5th november',
-                    'order_id'=>$new[$i],
-                    'DeliveryAddress' =>$cus_id,
-                    'products'=> $ordering           
-                ];
+                    $ordering= $new_query;
+                     $array[$i-1]= [
+                        'totelAmount'=>$total->total,
+                        'totalQuantity'=>$total->total_quantity,
+                        'msg'=>'expected delivery date 5th november',
+                        'order_id'=>$new[$i],
+                        'DeliveryAddress' =>$details,
+                        'products'=> $ordering           
+                    ];
           
                 $array++;
             }
@@ -602,12 +625,31 @@ class ProductController extends RestController
         ];
                 
         Yii::$app->api->sendSuccessResponse($response['DeliveryAddress'],$response['productsCart']);
+     }
     }
     public function actionCancel_order($order_id,$product_id)
     {
         $model=Orders::find()->andwhere(['order_id' =>$order_id])->andwhere([ 'product_id'=>$product_id])->one(); 
         $model->flag = 1;
         $model->save();
+        $mode=Orders::find()->where(['order_id' =>$order_id])->all(); 
+        $i=0;
+        foreach($mode as $mod)
+        {
+            $fl=$mod['flag'];
+            if($fl==0)
+         {
+             $i=1;
+
+         }
+        }
+        if($i!=1)
+        {
+            $total=Total::find()->andwhere(['order_id' =>$order_id])->one(); 
+            $total->flag = 1;
+            $total->save();
+
+        }
         Yii::$app->api->sendSuccessResponse($model->attributes);
     }
     public function actionCancel_all($order_id)

@@ -73,7 +73,7 @@ class Product extends \yii\db\ActiveRecord
         $page = isset($page) ? $page : 1;
         $offset = ($page - 1) * $limit;
         $query = Product::find()
-            ->select(['id', 'name', 'category', 'price', 'description','image'])
+            ->select(['id', 'name', 'category', 'price', 'description','image','count'])
             ->asArray(true)
             ->limit($limit)
             ->offset($offset);

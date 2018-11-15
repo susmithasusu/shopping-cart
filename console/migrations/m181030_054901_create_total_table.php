@@ -16,7 +16,7 @@ class m181030_054901_create_total_table extends Migration
             'id' => $this->primaryKey(),
             'customer_id'=>$this->integer(),
             'order_id'=>$this->integer(),
-            'user_name'=>$this->string(),
+            'email'=>$this->string(),
             'delivery_address'=>$this->string(),
             'total'=>$this->integer(),
             'total_quantity'=>$this->integer(),
