@@ -501,7 +501,7 @@ class ProductController extends RestController
                     $model1->save();
                     return [
                         'data' =>'successfully placed',
-                        'delivery-date'=>$time[0]
+                        'delivery_date'=>$time[0]
                 
                     ];
                     Yii::$app->api->sendSuccessResponse($response['data']); 
