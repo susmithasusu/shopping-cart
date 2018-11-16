@@ -730,8 +730,7 @@ class ProductController extends RestController
                
             }
               
-               
-                $additional_info = [
+                    $additional_info = [
                     'page' => $page,
                     'size' => $limit,
                     'totalCount' => (int)$orders1->count()
@@ -747,9 +746,7 @@ class ProductController extends RestController
                 // $array++;
      }
     
-   
-
-    public function actionListing_address($email)
+       public function actionListing_address($email)
     {
 
         $array=array();
