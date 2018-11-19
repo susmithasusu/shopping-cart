@@ -29,7 +29,7 @@ class ProductController extends RestController
 
            'apiauth' => [
                'class' => Apiauth::className(),
-               'exclude' => ['view','create','index','delete','products','categories','category_all','list_customer','view_customer','listing_orders','cancel_all','list_emails','listing_address','create_customer','update_customer','view_category','list_oneorder','block_user',
+               'exclude' => ['view','create','index','delete','products','categories','category_all','list_customer','view_customer','listing_orders','cancel_all','list_emails','listing_address','create_customer','update_customer','view_category','list_oneorder','block_user','user_checking',
                'list','category_adding','customer_adding','update','delete','update_product','delete_product','cancel_order','delete_customer','list_category','list_allorders'],
                'callback'=>[]
            ],
@@ -402,23 +402,12 @@ class ProductController extends RestController
         $order=$max['order_id']+1;
         if($email!=null)
         {
-            $flag=$email['flag'];
-
-            if($flag==1)
-            {
-                return [
-                    'data' =>'Blocked'
-                
-                ];
-            Yii::$app->api->sendSuccessResponse($response['data']); 
-        
-            }
             $email1=Address::find()->where(['customer_id' =>$email->id])->all(); 
             foreach($email1 as $address)
             {
                 // print_r($address['address']);
                 if(($address['address'])==($params['DeliveryAddress']['address'])){
-                 $i=1;
+                    $i=1;
                 }
                 
             }
@@ -433,14 +422,9 @@ class ProductController extends RestController
          
             for($i=0;$i<=$cn-1;$i++)
             {
-                $cus_id=Product::find()->where(['name' =>$params['productsCart'][$i]['name']])->one(); 
-                // $product_count=$cus_id['count'];
-                // $new_count= $product_count-$
-                // print_r($product_count);
-                // exit();
-
                 $mod=$max['order_id']+1;
                 $model2=new Orders;
+                $cus_id=Product::find()->where(['name' =>$params['productsCart'][$i]['name']])->one(); 
                 $model2->order_id=$mod;
                 $model2->customer_id=$email->id;
                 $model2->product_id=$cus_id->id;
@@ -450,28 +434,28 @@ class ProductController extends RestController
                 $cnt=$i;
             }
             
-                $model1->customer_id=$email->id;
-                $model1->order_id=$order;
-                $model1->email=$email->email;
-                $model1->delivery_address=$params['DeliveryAddress']['address'];
-                $model1->flag=0;
-                $model1->delivery_at=$time[0];
-                $model1->total=$params['totelAmount'];
-                $model1->total_quantity=$i;
-                $model1->save();
+            $model1->customer_id=$email->id;
+            $model1->order_id=$order;
+            $model1->email=$email->email;
+            $model1->delivery_address=$params['DeliveryAddress']['address'];
+            $model1->flag=0;
+            $model1->delivery_at=$time[0];
+            $model1->total=$params['totelAmount'];
+            $model1->total_quantity=$i;
+            $model1->save();
            
-                return [
-                    'data' =>'successfully placed',
-                    'delivery-date'=>$time[0]
+             return [
+                'data' =>'successfully placed',
+                'delivery-date'=>$time[0]
         
-                ];
-                Yii::$app->api->sendSuccessResponse($response['data']); 
+            ];
+        Yii::$app->api->sendSuccessResponse($response['data']); 
     
         }
         
         else
         {
-           
+        
             if($params){
            
                 $model->address = $params['DeliveryAddress']['address'];
@@ -527,7 +511,6 @@ class ProductController extends RestController
                 }
             }
         }
-        
     }
     public function actionBlock_user($id)
     {
@@ -779,6 +762,21 @@ class ProductController extends RestController
             return[
                 'data'=>$array
             ];
+    }
+    public function actionUser_checking($email)
+    {
+        $cus_id=Customer::find()->where(['email' =>$email])->one();
+        if($cus_id['flag']==1)
+        {
+
+            return[
+                'data'=>'Blocked'
+            ];
+            Yii::$app->api->sendSuccessResponse($response['data']); 
+
+        }
+      
+
     }
    
 }
