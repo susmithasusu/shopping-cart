@@ -96,7 +96,7 @@ class Product extends \yii\db\ActiveRecord
             // print_r($data);
             // exit();
             if(isset($params['name'])) {
-                $query->andFilterWhere(['name' => $params['name']]);
+                $data->andFilterWhere(['name' => $params['name']]);
             }
         //    if(isset($order)){ 
         //     $data->orderBy($order);
@@ -108,7 +108,7 @@ class Product extends \yii\db\ActiveRecord
         ];
 
         return [
-            'data' =>  $query->all(),
+            'data' =>  $query1,
             'info' => $additional_info
         ];
     }

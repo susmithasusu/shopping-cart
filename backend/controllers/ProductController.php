@@ -770,7 +770,7 @@ class ProductController extends RestController
       
 
             return[
-                'status'=>$cus_id['flag']
+                'status'=> $status
             ];
             Yii::$app->api->sendSuccessResponse($response['data']); 
 
