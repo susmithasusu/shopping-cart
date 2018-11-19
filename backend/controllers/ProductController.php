@@ -402,12 +402,23 @@ class ProductController extends RestController
         $order=$max['order_id']+1;
         if($email!=null)
         {
+            $flag=$email['flag'];
+
+            if($flag==1)
+            {
+                return [
+                    'data' =>'Blocked'
+                
+                ];
+            Yii::$app->api->sendSuccessResponse($response['data']); 
+        
+            }
             $email1=Address::find()->where(['customer_id' =>$email->id])->all(); 
             foreach($email1 as $address)
             {
                 // print_r($address['address']);
                 if(($address['address'])==($params['DeliveryAddress']['address'])){
-                    $i=1;
+                 $i=1;
                 }
                 
             }
@@ -422,9 +433,14 @@ class ProductController extends RestController
          
             for($i=0;$i<=$cn-1;$i++)
             {
+                $cus_id=Product::find()->where(['name' =>$params['productsCart'][$i]['name']])->one(); 
+                // $product_count=$cus_id['count'];
+                // $new_count= $product_count-$
+                // print_r($product_count);
+                // exit();
+
                 $mod=$max['order_id']+1;
                 $model2=new Orders;
-                $cus_id=Product::find()->where(['name' =>$params['productsCart'][$i]['name']])->one(); 
                 $model2->order_id=$mod;
                 $model2->customer_id=$email->id;
                 $model2->product_id=$cus_id->id;
@@ -434,28 +450,28 @@ class ProductController extends RestController
                 $cnt=$i;
             }
             
-            $model1->customer_id=$email->id;
-            $model1->order_id=$order;
-            $model1->email=$email->email;
-            $model1->delivery_address=$params['DeliveryAddress']['address'];
-            $model1->flag=0;
-            $model1->delivery_at=$time[0];
-            $model1->total=$params['totelAmount'];
-            $model1->total_quantity=$i;
-            $model1->save();
+                $model1->customer_id=$email->id;
+                $model1->order_id=$order;
+                $model1->email=$email->email;
+                $model1->delivery_address=$params['DeliveryAddress']['address'];
+                $model1->flag=0;
+                $model1->delivery_at=$time[0];
+                $model1->total=$params['totelAmount'];
+                $model1->total_quantity=$i;
+                $model1->save();
            
-             return [
-                'data' =>'successfully placed',
-                'delivery-date'=>$time[0]
+                return [
+                    'data' =>'successfully placed',
+                    'delivery-date'=>$time[0]
         
-            ];
-        Yii::$app->api->sendSuccessResponse($response['data']); 
+                ];
+                Yii::$app->api->sendSuccessResponse($response['data']); 
     
         }
         
         else
         {
-        
+           
             if($params){
            
                 $model->address = $params['DeliveryAddress']['address'];
@@ -511,6 +527,7 @@ class ProductController extends RestController
                 }
             }
         }
+        
     }
     public function actionBlock_user($id)
     {
