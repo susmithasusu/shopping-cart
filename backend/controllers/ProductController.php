@@ -766,16 +766,13 @@ class ProductController extends RestController
     public function actionUser_checking($email)
     {
         $cus_id=Customer::find()->where(['email' =>$email])->one();
-        if($cus_id['flag']==1)
-        {
+        $status=$cus_id['flag'];
+      
 
             return[
-                'data'=>'Blocked'
+                'status'=> $status
             ];
             Yii::$app->api->sendSuccessResponse($response['data']); 
-
-        }
-      
 
     }
    
