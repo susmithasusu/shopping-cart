@@ -193,7 +193,12 @@ class ProductController extends RestController
           
         
         $model = $this->findModel2($id);
-        unlink(\Yii::$app->basePath.'/web/uploads/'.$model['image']);
+        $new_img=\Yii::$app->basePath.'/web/uploads/'.$model['image'];
+        if (file_exists($new_img)) {
+            unlink(\Yii::$app->basePath.'/web/uploads/'.$model['image']);
+          
+        }
+      
         $content= base64_decode($this->request['image']);
         $image = $this->request['image']; 
         $image = str_replace('data:image/png;base64,', '', $image);
