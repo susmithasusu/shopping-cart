@@ -176,6 +176,8 @@ class ProductController extends RestController
     }
     protected function findmodel2($id)
     {
+        // print_r($id);
+        // exit();
         if (($model = Product::findOne($id)) !== null) {
             return $model;
         } else {
@@ -185,11 +187,10 @@ class ProductController extends RestController
 
     public function actionUpdate_product($id)
     {
-        $modelss = $this->findModel2($this->request['id']);
-            
-        $new_imgs=Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'.$modelss['image'];
+      
         if($this->request['image']!=" ")
         {
+          
         
         $model = $this->findModel2($id);
         unlink(\Yii::$app->basePath.'/web/uploads/'.$model['image']);
@@ -220,21 +221,23 @@ class ProductController extends RestController
         }
         }
         else{
-           
+         
             $model = $this->findModel2($this->request['id']);
-            
+          
             $new_img=Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'.$model['image'];
             $category=Category::find(['id'])->where(['category_name' =>$this->request['category']])->one();
             $cat_id= $category['id'];
             $model->category =$cat_id;
             $model->name=$this->request['name'];
             $model->description=$this->request['description'];
-            $model->image=$model['image'];
             $model->price=$this->request['price'];
+            $model->image=$model['image'];
             $model->count=$this->request['count'];
             $model->save();
+         
             if ($model->save()) {
-                $model->image=$new_imgs;
+                $model->image=$new_img;
+                
                 Yii::$app->api->sendSuccessResponse($model->attributes);
             } else {
                 Yii::$app->api->sendFailedResponse($model->errors);
