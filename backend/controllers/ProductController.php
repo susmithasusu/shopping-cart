@@ -185,6 +185,9 @@ class ProductController extends RestController
 
     public function actionUpdate_product($id)
     {
+        $modelss = $this->findModel2($this->request['id']);
+            
+        $new_imgs=Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'.$modelss['image'];
         if($this->request['image']!=" ")
         {
         
@@ -226,11 +229,12 @@ class ProductController extends RestController
             $model->category =$cat_id;
             $model->name=$this->request['name'];
             $model->description=$this->request['description'];
+            $model->image=$model['image'];
             $model->price=$this->request['price'];
             $model->count=$this->request['count'];
             $model->save();
             if ($model->save()) {
-                $model->image=$new_img;
+                $model->image=$new_imgs;
                 Yii::$app->api->sendSuccessResponse($model->attributes);
             } else {
                 Yii::$app->api->sendFailedResponse($model->errors);
