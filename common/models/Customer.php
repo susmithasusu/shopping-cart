@@ -79,9 +79,12 @@ class Customer extends \yii\db\ActiveRecord
             ->offset($offset);
 
       
-        if(isset($params['name'])) {
-            $query->andFilterWhere(['like', 'name', $params['name']]);
-        }
+            if(isset($params['email'])){
+                $query->andFilterWhere(['like', 'email', $params['email']]);
+            }
+            if(isset($params['name'])){
+                $query->andFilterWhere(['like', 'name', $params['name']]);
+            }
     
 
         if(isset($order)){
@@ -106,7 +109,6 @@ class Customer extends \yii\db\ActiveRecord
         $page = Yii::$app->getRequest()->getQueryParam('page');
         $limit = Yii::$app->getRequest()->getQueryParam('limit');
         $order = Yii::$app->getRequest()->getQueryParam('order');
-
         $search = Yii::$app->getRequest()->getQueryParam('search');
 
         if(isset($search)){
@@ -125,6 +127,9 @@ class Customer extends \yii\db\ActiveRecord
 
         if(isset($params['email'])){
             $query->andFilterWhere(['like', 'email', $params['email']]);
+        }
+        if(isset($params['name'])){
+            $query->andFilterWhere(['like', 'name', $params['name']]);
         }
 
        if(isset($order)){

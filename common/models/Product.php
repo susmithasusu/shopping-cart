@@ -78,6 +78,21 @@ class Product extends \yii\db\ActiveRecord
             ->limit($limit)
             ->offset($offset);
             $i=0;
+           
+            if(isset($params['name'])) {
+                $query->andFilterWhere(['like', 'name', $params['name']]);
+            }
+            if(isset($params['category'])) {
+                $category=Category::find(['id'])->where(['category_name' =>$params['category']])->one();
+                $cat=$category['id'];
+             
+                $query->andFilterWhere(['like', 'category', $cat]);
+            }
+            if(isset($order)){
+                $query->orderBy($order);
+            }
+    
+          
             $query1=$query->all();
           
             foreach($query1 as $row)
@@ -92,15 +107,7 @@ class Product extends \yii\db\ActiveRecord
                
                  }
             }
-            $data = (object) $query1;
-            // print_r($data);
-            // exit();
-            if(isset($params['name'])) {
-                $data->andFilterWhere(['name' => $params['name']]);
-            }
-        //    if(isset($order)){ 
-        //     $data->orderBy($order);
-        //    }
+      
         $additional_info = [
             'page' => $page,
             'size' => $limit,

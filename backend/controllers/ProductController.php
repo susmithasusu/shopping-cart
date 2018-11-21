@@ -191,7 +191,6 @@ class ProductController extends RestController
         if($this->request['image']!=" ")
         {
           
-        
         $model = $this->findModel2($id);
         $new_img=\Yii::$app->basePath.'/web/uploads/'.$model['image'];
         if (file_exists($new_img)) {
@@ -530,8 +529,6 @@ class ProductController extends RestController
         $model->flag = 1;
         $model->save();
         Yii::$app->api->sendSuccessResponse($model->attributes);
-
-
     }
      
     public function actionListing_orders($email) {
@@ -632,12 +629,12 @@ class ProductController extends RestController
                 $array++;
             }
         
-        return [
-            'orders'=>$array
-        ];
+            return [
+                'orders'=>$array
+            ];
                 
-        Yii::$app->api->sendSuccessResponse($response['DeliveryAddress'],$response['productsCart']);
-     }
+            Yii::$app->api->sendSuccessResponse($response['DeliveryAddress'],$response['productsCart']);
+        }
     }
     public function actionCancel_order($order_id,$product_id)
     {
@@ -660,7 +657,6 @@ class ProductController extends RestController
             $total=Total::find()->andwhere(['order_id' =>$order_id])->one(); 
             $total->flag = 1;
             $total->save();
-
         }
         Yii::$app->api->sendSuccessResponse($model->attributes);
     }
@@ -711,6 +707,7 @@ class ProductController extends RestController
         $offset = ($page - 1) * $limit;
         $orders1 = Orders::find()->where(['order_id' =>$order_id])->limit($limit)
         ->offset($offset);
+        
         $orders=$orders1->all();
            
             foreach($orders as $ord)
