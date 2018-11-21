@@ -72,15 +72,13 @@ class Total extends \yii\db\ActiveRecord
             ->limit($limit)
             ->offset($offset);
 
-        if(isset($params['id'])) {
-            $query->andFilterWhere(['id' => $params['id']]);
-        }
+    
 
         if(isset($params['created_at'])) {
-            $query->andFilterWhere(['created_at' => $params['created_at']]);
+            $query->andFilterWhere(['like','created_at', $params['created_at']]);
         }
         if(isset($params['email'])) {
-            $query->andFilterWhere(['email' => $params['email']]);
+            $query->andFilterWhere(['like','email', $params['email']]);
         }
         if(isset($params['order_id'])) {
             $query->andFilterWhere(['like', 'order_id', $params['order_id']]);
