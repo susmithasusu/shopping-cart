@@ -83,27 +83,26 @@ class Product extends \yii\db\ActiveRecord
                 $query->andFilterWhere(['like', 'name', $params['name']]);
             }
             if(isset($params['category'])) {
-                // print_r($params['category']);
-                // exit();
-                // $category=Category::find()->where(['category_name' =>$params['category']])->one();
-                // // $cat=$category['id'];
-                // print_r($category);
-                // exit();
+             
                 $model = Category::find()
                 ->where("`category_name` LIKE '" . $params['category'] . "%'" ) 
-                ->limit(1)
-                ->all();
-        
-                 $model1 = ArrayHelper::getColumn($model, 'id');
+                ->one();
+                if($model['id']!='')
+                {
+                    $query->andFilterWhere(['like', 'category', $model['id']]);
+                }
+                else{
+                    $query->andFilterWhere(['like', 'category', $params['category']]);
+                }
+             
+           
                   
-                 
-                $query->andFilterWhere(['like', 'category', $model1]);
-            }
-            if(isset($order)){
+                 }
+                
+                if(isset($order)){
                 $query->orderBy($order);
             }
     
-          
             $query1=$query->all();
           
             foreach($query1 as $row)

@@ -360,7 +360,6 @@ class ProductController extends RestController
     }
     public function actionUpdate_customer($id)
     {
-        
         $model = $this->findModel3($id);
         $model->attributes = $this->request;
 
@@ -460,7 +459,7 @@ class ProductController extends RestController
                 'delivery-date'=>$time[0]
         
             ];
-        Yii::$app->api->sendSuccessResponse($response['data']); 
+            Yii::$app->api->sendSuccessResponse($response['data']); 
     
         }
         
@@ -629,6 +628,7 @@ class ProductController extends RestController
                 $array++;
             }
         
+
             return [
                 'orders'=>$array
             ];
@@ -761,7 +761,6 @@ class ProductController extends RestController
         $array=array();
         $new_array=array();
         $cus_id=Customer::find()->where(['email' =>$email])->one();
-      
         $address=Address::find()->where(['customer_id' =>$cus_id['id']])->all();
         foreach($address as $add)
                 {
