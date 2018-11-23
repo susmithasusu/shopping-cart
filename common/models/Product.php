@@ -94,14 +94,11 @@ class Product extends \yii\db\ActiveRecord
                 else{
                     $query->andFilterWhere(['like', 'category', $params['category']]);
                 }
-             
-           
-                  
-                 }
+            }
                 
                 if(isset($order)){
                 $query->orderBy($order);
-            }
+                }
     
             $query1=$query->all();
           

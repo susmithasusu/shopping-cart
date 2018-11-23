@@ -29,7 +29,7 @@ class ProductController extends RestController
 
            'apiauth' => [
                'class' => Apiauth::className(),
-               'exclude' => ['view','create','index','delete','products','categories','category_all','list_customer','view_customer','listing_orders','cancel_all','list_emails','listing_address','create_customer','update_customer','view_category','list_oneorder','block_user','user_checking',
+               'exclude' => ['view','create','index','delete','products','categories','category_all','list_customer','view_customer','listing_orders','cancel_all','list_emails','listing_address','create_customer','update_customer','view_category','list_oneorder','block_user','user_checking','user_unblock',
                'list','category_adding','customer_adding','update','delete','update_product','delete_product','cancel_order','delete_customer','list_category','list_allorders'],
                'callback'=>[]
            ],
@@ -434,8 +434,7 @@ class ProductController extends RestController
             {
                 $mod=$max['order_id']+1;
                 $model2=new Orders;
-                $cus_id=Product::find()->where(['name' =>$params['productsCart'][$i]['name']])->one(); 
-                $model2->order_id=$mod;
+                $cus_id=Product::find()->where(['name' =>$params['productsCart'][$i]['name']])->one();$model2->order_id=$mod;
                 $model2->customer_id=$email->id;
                 $model2->product_id=$cus_id->id;
                 $model2->count=$params['productsCart'][$i]['count'];
@@ -781,6 +780,15 @@ class ProductController extends RestController
                 'status'=> $status
             ];
             Yii::$app->api->sendSuccessResponse($response['data']); 
+
+    }
+    public function actionUser_unblock($id)
+    { 
+        $model=Customer::find()->where(['id' =>$id])->one();
+        $model->flag = 0;
+        $model->save();
+        Yii::$app->api->sendSuccessResponse($model->attributes);
+        
 
     }
    
