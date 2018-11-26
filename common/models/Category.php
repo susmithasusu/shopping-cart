@@ -32,6 +32,7 @@ class Category extends \yii\db\ActiveRecord
             [['category_name'], 'required'],
            
             [['category_name'], 'string', 'max' => 200],
+            [['category_name'], 'match', 'pattern' => '/^[a-z]\w*$/i'],
           
         ];
     }

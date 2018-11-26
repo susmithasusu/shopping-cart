@@ -53,6 +53,7 @@ class Product extends \yii\db\ActiveRecord
             'description' => 'Description',
             'price' => 'Price',
             'count'=>'Count',
+            'image'=>'Image',
             'flag'=>'Flag',
             
         ];

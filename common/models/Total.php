@@ -72,8 +72,6 @@ class Total extends \yii\db\ActiveRecord
             ->limit($limit)
             ->offset($offset);
 
-    
-
         if(isset($params['created_at'])) {
             $query->andFilterWhere(['like','created_at', $params['created_at']]);
         }
