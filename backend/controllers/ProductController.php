@@ -191,38 +191,38 @@ class ProductController extends RestController
         if($this->request['image']!=" ")
         {
           
-        $model = $this->findModel2($id);
-        $new_img=\Yii::$app->basePath.'/web/uploads/'.$model['image'];
-        if (file_exists($new_img)) {
-            unlink(\Yii::$app->basePath.'/web/uploads/'.$model['image']);
+            $model = $this->findModel2($id);
+            $new_img=\Yii::$app->basePath.'/web/uploads/'.$model['image'];
+                if (file_exists($new_img)) {
+                    unlink(\Yii::$app->basePath.'/web/uploads/'.$model['image']);
           
-        }
+                }
       
-        $content= base64_decode($this->request['image']);
-        $image = $this->request['image']; 
-        $image = str_replace('data:image/png;base64,', '', $image);
-        $image = str_replace(' ', '+', $image);
-        $data = base64_decode($image);
-        $imgName='img_'.$this->request['name'] .'.'.'png';
-        $new_img=Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'. $imgName;
-        file_put_contents(\Yii::$app->basePath.'/web/uploads/'.$imgName, $data);
-        exec('sudo chmod ' .Yii::$app->basePath.'/web/uploads/'.$imgName.'777');
+            $content= base64_decode($this->request['image']);
+            $image = $this->request['image']; 
+            $image = str_replace('data:image/png;base64,', '', $image);
+            $image = str_replace(' ', '+', $image);
+            $data = base64_decode($image);
+            $imgName='img_'.$this->request['name'] .'.'.'png';
+            $new_img=Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'. $imgName;
+            file_put_contents(\Yii::$app->basePath.'/web/uploads/'.$imgName, $data);
+            exec('sudo chmod ' .Yii::$app->basePath.'/web/uploads/'.$imgName.'777');
        
-        $category=Category::find(['id'])->where(['category_name' =>$this->request['category']])->one();
-        $cat_id= $category['id'];
-        $model->category =$cat_id;
-        $model->name=$this->request['name'];
-        $model->image=$imgName;
-        $model->description=$this->request['description'];
-        $model->price=$this->request['price'];
-        $model->count=$this->request['count'];
-        $model->save();
-        if ($model->save()) {
-            $model->image=$new_img;
-            Yii::$app->api->sendSuccessResponse($model->attributes);
-        } else {
-            Yii::$app->api->sendFailedResponse($model->errors);
-        }
+            $category=Category::find(['id'])->where(['category_name' =>$this->request['category']])->one();
+            $cat_id= $category['id'];
+            $model->category =$cat_id;
+            $model->name=$this->request['name'];
+            $model->image=$imgName;
+            $model->description=$this->request['description'];
+            $model->price=$this->request['price'];
+            $model->count=$this->request['count'];
+            $model->save();
+            if ($model->save()) {
+                 $model->image=$new_img;
+                Yii::$app->api->sendSuccessResponse($model->attributes);
+            } else {
+                Yii::$app->api->sendFailedResponse($model->errors);
+            }
         }
         else{
          
@@ -618,7 +618,7 @@ class ProductController extends RestController
                      $array[$i-1]= [
                         'totelAmount'=>$total->total,
                         'totalQuantity'=>$total->total_quantity,
-                        'msg'=>'expected delivery date 5th november',
+                        'delivery_date'=>$total->delivery_at,
                         'order_id'=>$new[$i],
                         'DeliveryAddress' =>$details,
                         'products'=> $ordering           
