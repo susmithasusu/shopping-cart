@@ -91,7 +91,6 @@ class ProductController extends RestController
         $new_img=Yii::$app->urlManager->createAbsoluteUrl("uploads").'/'.$imgName;
         file_put_contents(\Yii::$app->basePath.'/web/uploads/'.$imgName, $data);
         exec('sudo chmod ' .Yii::$app->basePath.'/web/uploads/'.$imgName.'777');
-
         $category=Category::find(['id'])->where(['category_name' =>$this->request['category']])->one();
         $cat_id= $category['id'];
         $model->category =$cat_id;

@@ -30,7 +30,7 @@ class Customer extends \yii\db\ActiveRecord
     {
         return [
             [['address','name', 'email','phone'], 'required'],
-            [['email'],'email'],
+            [['email'],'email','message'=>"Please enter a valid email"],
             [['email'],'unique'],
             [['name','email','address'], 'string', 'max' => 200],
             
